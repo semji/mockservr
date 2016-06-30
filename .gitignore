@@ -2,4 +2,5 @@
 /app/mocks/*
 /app/node_modules/*
 !/app/mocks/.keep
+!/app/mocks/vidlis.json
 /docker-compose.override.yml
