@@ -28,7 +28,7 @@ module.exports = class Parser {
             let endpoints = config[apiName].endpoints
 
             for (let j=0; j< endpoints.length; j++) {
-                let item = endpoints[i];
+                let item = endpoints[j];
                 let endpoint = new Endpoint(item.uri, item.request, item.response);
                 api.addEndpoint(endpoint);
             }
