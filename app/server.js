@@ -2,7 +2,7 @@ var Parser = require('./modules/parser');
 var http = require('http');
 let Request = require('./request');
 
-var apiParser = new Parser('./mocks/');
+var apiParser = new Parser('./../mocks/');
 apiParser.parse();
 
 var server = http.createServer(function(req, res) {
