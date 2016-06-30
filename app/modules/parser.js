@@ -1,11 +1,12 @@
 var recursive = require('recursive-readdir');
 var Api = require('./../api');
+var Endpoint = require('./../endpoint');
 var fs = require('fs');
 var path = require('path');
 
 module.exports = class Parser {
 
-  constructor(dir) {
+  constructor() {
       this.apis = new Map()
   }
 
@@ -16,20 +17,29 @@ module.exports = class Parser {
         for (let i=0; i<files.length; i++) {
             let apiName = path.basename(files[i], '.json');
 
+            let api;
             if (this.apis.has(apiName)) {
-                let api = this.apis.get(apiName);
+                api = this.apis.get(apiName);
             } else {
-                let api = new Api(apiName);
+                api = new Api(apiName);
             }
 
-            let endpoints = require('./../mocks/' + path.basename(files[i]));
-            api.addEndpoint(endpoints[apiName].endpoints));
-            this.apis.set(apiName);
+            let config = require('./../mocks/' + path.basename(files[i]));
+            let endpoints = config[apiName].endpoints
+
+            for (let j=0; j< endpoints.length; j++) {
+                let item = endpoints[i];
+                let endpoint = new Endpoint(item.uri, item.request, item.response);
+                api.addEndpoint(endpoint);
+            }
+
+            this.apis.set(apiName, api);
         }
     });
+
   }
 
   getApis() {
-      return this.apis;
+      return this.apis
   }
 }
