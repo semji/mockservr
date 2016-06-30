@@ -7,6 +7,8 @@ module.exports = class Api {
 
   addEndpoint(endpoint) {
     this.endpoints.push(endpoint);
+
+    return this;
   }
 
   getEndpoints() {

@@ -19,10 +19,15 @@ module.exports = class Endpoint {
   }
 
   match(request) {
-
+    if (request.method != this.request.method) {
+      return false;
+    }
+    var patt = new RegExp(this.uri.split('?')[0]);
+    return patt.test(request.uri);
   }
 
   respond(response) {
-
+    response.writeHead(this.response.headers.status_code, this.response.headers);
+    response.end(this.response.body);
   }
 }

@@ -1,7 +1,7 @@
 {
 	"vidlis": {
 		"endpoints": [{
-			"uri": "artists",
+			"uri": "artists/(.*).json",
 			"request": {
 				"method": "GET",
 				"params": [{
@@ -14,7 +14,8 @@
 			},
 			"response": {
 				"headers": {
-					"status_code": 200
+					"status_code": 200,
+					"content-Type": "application/json"
 				},
 				"body": "{\n  \"artists\": [{\n        \"name\": \"AC\/DC\",\n        \"albums\": [{\n          \"name\": \"Highway to Hell\",\n          \"tracks\": [{\n            \"name\": \"Highway to Hell\",\n            \"duration\": \"3:28\",\n            \"youtubeVideoId\": \"gEPmA3USJdI\"\n          },{\n            \"name\": \"Girls Got Rhythm\",\n            \"duration\": \"3:24\",\n            \"youtubeVideoId\": \"5xbPFlwZc9A\"\n          }]\n        },{\n          \"name\": \"Black Ice\",\n          \"tracks\": [{\n            \"name\": \"Rock 'n' Roll Train\",\n            \"duration\": \"4:22\",\n            \"youtubeVideoId\": \"LdRxXID_b28\"\n          },{\n            \"name\": \"Skies on Fire\",\n            \"duration\": \"3:34\",\n            \"youtubeVideoId\": \"Ueqdg6IY4aQ\"\n          }]\n        }]\n    }\n  ]\n}"
 			}
@@ -29,7 +30,8 @@
 			},
 			"response": {
 				"headers": {
-					"status_code": 200
+					"status_code": 200,
+					"content-Type": "application/json"
 				},
 				"body": "{\n  \"id\": 1,\n  \"name\": \"AC\/DC\",\n  \"albums\": []\n}"
 			}
