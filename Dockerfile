@@ -7,5 +7,3 @@ ENTRYPOINT ["node",  "server.js"]
 EXPOSE 80
 
 WORKDIR /usr/src/app
-
-VOLUME /usr/src/app/mocks
