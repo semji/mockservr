@@ -6,6 +6,14 @@ var server = http.createServer(function(req, res) {
     res.end('<p>Voici un paragraphe <strong>HTML</strong> !</p>');
 
     let request = new Request(req);
+
+    let chunks = [];
+
+    req.on('data', (chunk) => {
+      chunks.push(chunk);
+    }).on('end', () => {
+      request.payload = Buffer.concat(chunks).toString();
+    })
 });
 
 server.listen(80);

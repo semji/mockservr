@@ -1,4 +1,5 @@
 let url = require('url');
+let querystring = require('querystring');
 
 module.exports  = class Request {
   constructor(req) {
@@ -7,8 +8,8 @@ module.exports  = class Request {
     this.req = req;
     this.api = pathname.split('/')[1];
     this.uri = pathname.substring(this.api.length + 2);
-
-    console.log('API : ' + this.api);
-    console.log('URI: ' + this.uri);
+    this.params = querystring.parse(url.parse(req.url).query);
+    this.method = req.method;
+    this.payload = null;
   }
 }
