@@ -1,4 +1,5 @@
 .idea
 /app/mocks/*
+/app/node_modules/*
 !/app/mocks/.keep
 /docker-compose.override.yml
