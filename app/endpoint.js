@@ -28,6 +28,6 @@ module.exports = class Endpoint {
 
   respond(response) {
     response.writeHead(this.response.headers.status_code, this.response.headers);
-    response.end(this.response.body);
+    response.end(JSON.stringify(this.response.body));
   }
 }
