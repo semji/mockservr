@@ -17,7 +17,35 @@
 					"status_code": 200,
 					"content-Type": "application/json"
 				},
-				"body": "{\n  \"artists\": [{\n        \"name\": \"AC\/DC\",\n        \"albums\": [{\n          \"name\": \"Highway to Hell\",\n          \"tracks\": [{\n            \"name\": \"Highway to Hell\",\n            \"duration\": \"3:28\",\n            \"youtubeVideoId\": \"gEPmA3USJdI\"\n          },{\n            \"name\": \"Girls Got Rhythm\",\n            \"duration\": \"3:24\",\n            \"youtubeVideoId\": \"5xbPFlwZc9A\"\n          }]\n        },{\n          \"name\": \"Black Ice\",\n          \"tracks\": [{\n            \"name\": \"Rock 'n' Roll Train\",\n            \"duration\": \"4:22\",\n            \"youtubeVideoId\": \"LdRxXID_b28\"\n          },{\n            \"name\": \"Skies on Fire\",\n            \"duration\": \"3:34\",\n            \"youtubeVideoId\": \"Ueqdg6IY4aQ\"\n          }]\n        }]\n    }\n  ]\n}"
+				"body": {
+					"artists": [{
+						"name": "AC/DC",
+						"albums": [{
+							"name": "Highway to Hell",
+							"tracks": [{
+								"name": "Highway to Hell",
+								"duration": "3:28",
+								"youtubeVideoId": "gEPmA3USJdI"
+								},{
+									"name": "Girls Got Rhythm",
+									"duration": "3:24",
+									"youtubeVideoId": "5xbPFlwZc9A"
+								}]
+							},{
+								"name": "Black Ice",
+								"tracks": [{
+									"name": "Rock 'n' Roll Train",
+									"duration": "4:22",
+									"youtubeVideoId": "LdRxXID_b28"
+									},{
+								"name": "Skies on Fire",
+								"duration": "3:34",
+								"youtubeVideoId": "Ueqdg6IY4aQ"
+								}]
+							}]
+						}
+					]
+				}
 			}
 		}, {
 			"uri": "artists",
