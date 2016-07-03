@@ -26,6 +26,22 @@ module.exports = class Endpoint {
     return patt.test(request.uri);
   }
 
+  checkParamsRequired(request) {
+      if (this.request.params.length) {
+          let paramRequiredNotFound = false;
+          this.request.params.forEach(function(param){
+              if (param.required && typeof request.params[param.name] == "undefined") {
+                  paramRequiredNotFound = true;
+                  return false;
+              }
+          });
+
+          return paramRequiredNotFound;
+      }
+
+      return false;
+  }
+
   respond(response) {
     response.writeHead(this.response.headers.status_code, this.response.headers);
     response.end(JSON.stringify(this.response.body));

@@ -3,14 +3,7 @@
 		"endpoints": [{
 			"uri": "artists/(.*).json",
 			"request": {
-				"method": "GET",
-				"params": [{
-					"name": "search",
-					"required": true
-				}, {
-					"name": "limit",
-					"required": false
-				}]
+				"method": "GET"
 			},
 			"response": {
 				"headers": {
