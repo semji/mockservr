@@ -1,11 +1,17 @@
 var Parser = require('./modules/parser');
 var http = require('http');
+var fs = require('fs');
 let Request = require('./request');
 
 var apiParser = new Parser();
 apiParser.parse();
 
-var server = http.createServer(function(req, res) {
+
+fs.watchFile('./mocks/', function () {
+    apiParser.clear().parse();
+});
+
+var server = http.createServer(function (req, res) {
     let foundEndpoint = false;
     let foundApi = false;
     let foundRequiredParam = false;
@@ -15,10 +21,28 @@ var server = http.createServer(function(req, res) {
     let chunks = [];
 
     req.on('data', (chunk) => {
-      chunks.push(chunk);
+        chunks.push(chunk);
     }).on('end', () => {
-      request.payload = Buffer.concat(chunks).toString();
-      apiParser.getApis().forEach(function(api) {
+        request.payload = Buffer.concat(chunks).toString();
+        if (request.api == 'list') {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.write('<!DOCTYPE html>' +
+                '<html>' +
+                '    <head>' +
+                '        <meta charset="utf-8" />' +
+                '        <title>Api list</title>' +
+                '    </head>' +
+                '    <body>');
+            apiParser.getApis().forEach(function (api) {
+                res.write('<h1>' + api.getName() + '</h1><ul>');
+                api.getEndpoints().forEach(function (endpoint) {
+                    res.write('<li>' + endpoint.request.method + ' ' + endpoint.uri + ' ' + '</li>');
+                });
+                res.write('</ul>');
+            });
+            res.end('</body></html>');
+        } else {
+            apiParser.getApis().forEach(function (api) {
 
         if (api.getName() == request.api) {
           foundApi = true;
@@ -33,14 +57,14 @@ var server = http.createServer(function(req, res) {
                   return false;
               }
 
-              return true;
-          });
+                        return true;
+                    });
 
-          return false;
-        }
+                    return false;
+                }
 
-        return true;
-      });
+                return true;
+            });
 
       if (!foundApi) {
         res.writeHead(800, {"Content-Type": "text/html"});
