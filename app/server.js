@@ -44,18 +44,18 @@ var server = http.createServer(function (req, res) {
         } else {
             apiParser.getApis().forEach(function (api) {
 
-        if (api.getName() == request.api) {
-          foundApi = true;
-          api.getEndpoints().forEach(function(endpoint) {
-              if (endpoint.match(request)) {
-                  foundEndpoint = true;
-                  if (endpoint.checkParamsRequired(request)) {
-                      foundRequiredParam = true;
-                      return false;
-                  }
-                  endpoint.respond(res);
-                  return false;
-              }
+                if (api.getName() == request.api) {
+                    foundApi = true;
+                    api.getEndpoints().forEach(function (endpoint) {
+                        if (endpoint.match(request)) {
+                            foundEndpoint = true;
+                            if (endpoint.checkParamsRequired(request)) {
+                                foundRequiredParam = true;
+                                return false;
+                            }
+                            endpoint.respond(res);
+                            return false;
+                        }
 
                         return true;
                     });
@@ -66,20 +66,21 @@ var server = http.createServer(function (req, res) {
                 return true;
             });
 
-      if (!foundApi) {
-        res.writeHead(800, {"Content-Type": "text/html"});
-        res.end('<h1>Api not found!</h1>');
-      }
+            if (!foundApi) {
+                res.writeHead(800, {"Content-Type": "text/html"});
+                res.end('<h1>Api not found!</h1>');
+            }
 
-      if (!foundEndpoint) {
-        res.writeHead(801, {"Content-Type": "text/html"});
-        res.end('<h1>Endpoint not Found!</h1>');
-      }
+            if (!foundEndpoint) {
+                res.writeHead(801, {"Content-Type": "text/html"});
+                res.end('<h1>Endpoint not Found!</h1>');
+            }
 
-      if (foundRequiredParam) {
-        res.writeHead(802, {"Content-Type": "text/html"});
-        res.end('<h1>Param required missing!</h1>');
-      }
+            if (foundRequiredParam) {
+                res.writeHead(802, {"Content-Type": "text/html"});
+                res.end('<h1>Param required missing!</h1>');
+            }
+        }
     })
 });
 

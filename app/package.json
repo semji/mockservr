@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/tejerka/mockserver#readme",
   "dependencies": {
+    "protagonist": "^1.4.1",
     "recursive-readdir": "^2.0.0"
   }
 }
