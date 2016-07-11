@@ -1,0 +1,3 @@
+/app/mocks/*
+!/app/mocks/.keep
+!/app/mocks/vidlis.json
