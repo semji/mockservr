@@ -27,7 +27,7 @@ module.exports = class Endpoint {
   }
 
   checkParamsRequired(request) {
-      if (this.request.params.length) {
+      if (this.request.params) {
           let paramRequiredNotFound = false;
           this.request.params.forEach(function(param){
               if (param.required && typeof request.params[param.name] == "undefined") {
