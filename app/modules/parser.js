@@ -11,7 +11,7 @@ module.exports = class Parser {
     }
 
     parse() {
-        let mocksDirectory = './mocks';
+        let mocksDirectory = __dirname + '/../mocks';
 
         if (process.env.MOCKS_DIRECTORY) {
             mocksDirectory = process.env.MOCKS_DIRECTORY;
@@ -30,7 +30,7 @@ module.exports = class Parser {
                     api = new Api(apiName);
                 }
 
-                let config = JSON.parse(fs.readFileSync(__dirname + '/../mocks/' + path.basename(files[i]), 'utf8'));
+                let config = JSON.parse(fs.readFileSync(mocksDirectory + '/' + path.basename(files[i]), 'utf8'));
                 let endpoints = config[apiName].endpoints;
 
                 for (let j = 0; j < endpoints.length; j++) {
