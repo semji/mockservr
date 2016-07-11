@@ -11,7 +11,13 @@ module.exports = class Parser {
     }
 
     parse() {
-        recursive('./mocks/', [function (file, stats) {
+        let mocksDirectory = './mocks';
+
+        if (process.env.MOCKS_DIRECTORY) {
+            mocksDirectory = process.env.MOCKS_DIRECTORY;
+        }
+
+        recursive(mocksDirectory, [function (file, stats) {
             return !(path.extname(file) == ".json");
         }], (err, files) => {
             for (let i = 0; i < files.length; i++) {
