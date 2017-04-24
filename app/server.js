@@ -19,7 +19,7 @@ const endpoints = [
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.route('/endpoints').post((req, res) => {
+app.route('/api/endpoints').post((req, res) => {
     if (!req.body.uri || !req.body.status || !req.body.body || !req.body.headers) {
         res.writeHead(400);
         res.end();
