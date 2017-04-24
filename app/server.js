@@ -1,87 +1,90 @@
-var Parser = require('./modules/parser');
-var http = require('http');
-var fs = require('fs');
-let Request = require('./request');
+const http = require('http');
+const fs = require('fs');
+const express = require('express');
+const bodyParser = require('body-parser');
+const sleep = require('sleep');
+const app = express();
+const endpoints = [
+    {
+        uri: '/toto',
+        status: 200,
+        time: 0,
+        body: '<h1>coucou</h1>',
+        headers: {
+            'Content-Type': 'text/html; charset=UTF-8',
+        }
+    }
+];
 
-var apiParser = new Parser();
-apiParser.parse();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
+app.route('/endpoints').post((req, res) => {
+    if (!req.body.uri || !req.body.status || !req.body.body || !req.body.headers) {
+        res.writeHead(400);
+        res.end();
+    }
+
+    let createNew = true;
+
+    endpoints.forEach((endpoint, index) => {
+        if (req.body.uri === endpoint.uri) {
+            endpoints[index] = {
+                uri: req.body.uri,
+                status: req.body.status,
+                time: req.body.time,
+                body: req.body.body,
+                headers: req.body.headers,
+            };
+            createNew = false;
+        }
+    });
+
+    if (createNew) {
+        endpoints.push({
+            uri: req.body.uri,
+            status: req.body.status,
+            time: req.body.time,
+            body: req.body.body,
+            headers: req.body.headers,
+        });
+    }
+
+    res.writeHead(204);
+    res.end();
+}).get((req, res) => {
+    let data = [];
+
+    endpoints.forEach((endpoint, index) => {
+        data.push(endpoint);
+        data[data.length - 1].id = index;
+    });
+
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.write(JSON.stringify(data));
+    res.end();
+});
+
+app.use('/', express.static('.'));
+
+app.listen(4580);
+
+http.createServer((req, res) => {
+    endpoints.forEach((endpoint) => {
+        if (req.url === endpoint.uri) {
+
+            if (endpoint.time) {
+                sleep.msleep(endpoint.time);
+            }
+
+            res.writeHead(endpoint.status, endpoint.headers);
+            res.write(endpoint.body);
+            res.end();
+        }
+    });
+    res.writeHead(404, {});
+    res.end();
+}).listen(80);
 
 fs.watchFile('./mocks/', function () {
-    apiParser.clear().parse();
 });
-
-var server = http.createServer(function (req, res) {
-    let foundEndpoint = false;
-    let foundApi = false;
-    let foundRequiredParam = false;
-
-    let request = new Request(req);
-
-    let chunks = [];
-
-    req.on('data', (chunk) => {
-        chunks.push(chunk);
-    }).on('end', () => {
-        request.payload = Buffer.concat(chunks).toString();
-        if (request.api == 'list') {
-            res.writeHead(200, {"Content-Type": "text/html"});
-            res.write('<!DOCTYPE html>' +
-                '<html>' +
-                '    <head>' +
-                '        <meta charset="utf-8" />' +
-                '        <title>Api list</title>' +
-                '    </head>' +
-                '    <body>');
-            apiParser.getApis().forEach(function (api) {
-                res.write('<h1>' + api.getName() + '</h1><ul>');
-                api.getEndpoints().forEach(function (endpoint) {
-                    res.write('<li>' + endpoint.request.method + ' ' + endpoint.uri + ' ' + '</li>');
-                });
-                res.write('</ul>');
-            });
-            res.end('</body></html>');
-        } else {
-            apiParser.getApis().forEach(function (api) {
-
-                if (api.getName() == request.api) {
-                    foundApi = true;
-                    api.getEndpoints().forEach(function (endpoint) {
-                        if (endpoint.match(request)) {
-                            foundEndpoint = true;
-                            if (endpoint.checkParamsRequired(request)) {
-                                foundRequiredParam = true;
-                                return false;
-                            }
-                            endpoint.respond(res);
-                            return false;
-                        }
-
-                        return true;
-                    });
-
-                    return false;
-                }
-
-                return true;
-            });
-
-            if (!foundApi) {
-                res.writeHead(800, {"Content-Type": "text/html"});
-                res.end('<h1>Api not found!</h1>');
-            }
-
-            if (!foundEndpoint) {
-                res.writeHead(801, {"Content-Type": "text/html"});
-                res.end('<h1>Endpoint not Found!</h1>');
-            }
-
-            if (foundRequiredParam) {
-                res.writeHead(802, {"Content-Type": "text/html"});
-                res.end('<h1>Param required missing!</h1>');
-            }
-        }
-    })
-});
-
-server.listen(80);

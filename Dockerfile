@@ -1,9 +1,10 @@
-FROM node:6
+FROM node:7
 
 COPY ./app /usr/src/app
 
-ENTRYPOINT ["node",  "server.js"]
+CMD ["node",  "server.js"]
 
 EXPOSE 80
+EXPOSE 4580
 
 WORKDIR /usr/src/app

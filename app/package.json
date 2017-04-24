@@ -4,8 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "start-dev": "nodemon server.js",
+    "sass-build": "node-sass --output-style compressed --include-path scss ./sass/global.scss app.css",
+    "sass-watch": "node-sass -w --output-style compressed --include-path scss ./sass/global.scss app.css"
   },
   "repository": {
     "type": "git",
@@ -17,8 +19,15 @@
     "url": "https://github.com/tejerka/mockserver/issues"
   },
   "homepage": "https://github.com/tejerka/mockserver#readme",
+  "devDependencies": {
+    "node-sass": "^4.5.2",
+    "nodemon": "^1.11.0"
+  },
   "dependencies": {
-    "protagonist": "^1.4.1",
-    "recursive-readdir": "^2.0.0"
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "font-awesome": "^4.7.0",
+    "sleep": "^5.1.1",
+    "vue": "^2.2.6"
   }
 }
