@@ -26,16 +26,41 @@ app.route('/api/endpoints').post((req, res) => {
     }
 
     let createNew = true;
+    let uriFounded = false;
 
     endpoints.forEach((endpoint, index) => {
         if (req.body.uri === endpoint.uri) {
-            endpoints[index] = {
+            if (req.body.method === endpoint.method) {
+                endpoints[index] = {
+                    uri: req.body.uri,
+                    method: req.body.method,
+                    status: req.body.status,
+                    time: req.body.time,
+                    body: req.body.body,
+                    headers: req.body.headers,
+                };
+                createNew = false;
+            } else if (!endpoint.method && createNew) {
+                endpoints.splice(index, 0, {
+                    uri: req.body.uri,
+                    method: req.body.method,
+                    status: req.body.status,
+                    time: req.body.time,
+                    body: req.body.body,
+                    headers: req.body.headers,
+                });
+                createNew = false;
+            }
+            uriFounded = true;
+        } else if (uriFounded && createNew) {
+            endpoints.splice(index, 0, {
                 uri: req.body.uri,
+                method: req.body.method,
                 status: req.body.status,
                 time: req.body.time,
                 body: req.body.body,
                 headers: req.body.headers,
-            };
+            });
             createNew = false;
         }
     });
@@ -43,6 +68,7 @@ app.route('/api/endpoints').post((req, res) => {
     if (createNew) {
         endpoints.push({
             uri: req.body.uri,
+            method: req.body.method,
             status: req.body.status,
             time: req.body.time,
             body: req.body.body,
@@ -53,36 +79,39 @@ app.route('/api/endpoints').post((req, res) => {
     res.writeHead(204);
     res.end();
 }).get((req, res) => {
-    let data = [];
-
-    endpoints.forEach((endpoint, index) => {
-        data.push(endpoint);
-        data[data.length - 1].id = index;
-    });
-
     res.writeHead(200, {'Content-Type': 'application/json'});
-    res.write(JSON.stringify(data));
+    res.write(JSON.stringify(endpoints));
     res.end();
 });
 
 app.use('/', express.static('.'));
 
+app.route('*').get((req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
 app.listen(4580);
 
 http.createServer((req, res) => {
+    let foundEndpoint;
+
     endpoints.forEach((endpoint) => {
-        if (req.url === endpoint.uri) {
-
-            if (endpoint.time) {
-                sleep.msleep(endpoint.time);
-            }
-
-            res.writeHead(endpoint.status, endpoint.headers);
-            res.write(endpoint.body);
-            res.end();
+        if (!foundEndpoint && req.url === endpoint.uri && (!endpoint.method || req.method === endpoint.method)) {
+            foundEndpoint = endpoint;
         }
     });
-    res.writeHead(404, {});
+
+    if (foundEndpoint) {
+        if (foundEndpoint.time) {
+            sleep.msleep(foundEndpoint.time);
+        }
+
+        res.writeHead(foundEndpoint.status, foundEndpoint.headers);
+        res.write(foundEndpoint.body);
+    } else {
+        res.writeHead(404, {});
+    }
+
     res.end();
 }).listen(80);
 
