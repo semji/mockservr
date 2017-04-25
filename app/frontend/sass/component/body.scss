@@ -1,0 +1,9 @@
+@import "../generic/variables";
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: $text-size;
+  color: $primary-text-color;
+}

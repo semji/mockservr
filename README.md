@@ -15,9 +15,16 @@ services:
       - 8045:4580
 
   sass-watch:
-    image: node:7
-    command: npm run sass-watch
-    working_dir: /usr/src/app
-    volumes:
-      - ./app:/usr/src/app
+      image: node:7
+      command: npm run sass-watch
+      working_dir: /usr/src/app
+      volumes:
+        - ./app:/usr/src/app
+        
+  webpack-watch:
+      image: node:7
+      command: npm run webpack-watch
+      working_dir: /usr/src/app
+      volumes:
+        - ./app:/usr/src/app
 ```
