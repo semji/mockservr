@@ -1,4 +1,5 @@
 const http = require('http');
+const url = require('url');
 const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -23,6 +24,7 @@ app.route('/api/endpoints').post((req, res) => {
     if (!req.body.uri || !req.body.status || !req.body.body || !req.body.headers) {
         res.writeHead(400);
         res.end();
+        return;
     }
 
     let createNew = true;
@@ -82,6 +84,21 @@ app.route('/api/endpoints').post((req, res) => {
     res.writeHead(200, {'Content-Type': 'application/json'});
     res.write(JSON.stringify(endpoints));
     res.end();
+}).delete((req, res) => {
+    if (!req.body.uri) {
+        res.writeHead(400);
+        res.end();
+        return;
+    }
+
+    endpoints.forEach((endpoint, index) => {
+        if (req.body.uri === endpoint.uri && (!req.body.method || req.body.method === endpoint.method)) {
+            endpoints.splice(index, 1);
+        }
+    });
+
+    res.writeHead(204);
+    res.end();
 });
 
 app.use('/', express.static('.'));
@@ -94,9 +111,11 @@ app.listen(4580);
 
 http.createServer((req, res) => {
     let foundEndpoint;
+    const uri = url.parse(req.url).pathname;
 
     endpoints.forEach((endpoint) => {
-        if (!foundEndpoint && req.url === endpoint.uri && (!endpoint.method || req.method === endpoint.method)) {
+        const reg = new RegExp('^' + endpoint.uri + '$');
+        if (!foundEndpoint && reg.test(uri) && (!endpoint.method || req.method === endpoint.method)) {
             foundEndpoint = endpoint;
         }
     });
