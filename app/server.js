@@ -3,6 +3,7 @@ const url = require('url');
 const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
+const Velocity = require('velocityjs');
 const sleep = require('sleep');
 const app = express();
 const endpoints = [
@@ -126,7 +127,10 @@ http.createServer((req, res) => {
         }
 
         res.writeHead(foundEndpoint.status, foundEndpoint.headers);
-        res.write(foundEndpoint.body);
+        res.write(Velocity.render(foundEndpoint.body, {
+            req: req,
+            endpoint: foundEndpoint
+        }));
     } else {
         res.writeHead(404, {});
     }
