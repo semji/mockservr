@@ -7,20 +7,7 @@ const Velocity = require('velocityjs');
 const sleep = require('sleep');
 const pathToRegexp = require('path-to-regexp');
 const app = express();
-const endpoints = [
-    {
-        uri: '/toto',
-        status: 200,
-        time: 0,
-        body: '<h1>coucou</h1>',
-        headers: {
-            'Content-Type': 'text/html; charset=UTF-8',
-        },
-        velocity: {
-            enabled: true,
-        }
-    }
-];
+const endpoints = require('./endpoints');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
