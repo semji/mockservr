@@ -5,6 +5,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Velocity = require('velocityjs');
 const sleep = require('sleep');
+const pathToRegexp = require('path-to-regexp');
 const app = express();
 const endpoints = [
     {
@@ -14,6 +15,9 @@ const endpoints = [
         body: '<h1>coucou</h1>',
         headers: {
             'Content-Type': 'text/html; charset=UTF-8',
+        },
+        velocity: {
+            enabled: true,
         }
     }
 ];
@@ -41,6 +45,7 @@ app.route('/api/endpoints').post((req, res) => {
                     time: req.body.time,
                     body: req.body.body,
                     headers: req.body.headers,
+                    velocity: req.body.velocity ? req.body.velocity : { enabled: true},
                 };
                 createNew = false;
             } else if (!endpoint.method && createNew) {
@@ -51,6 +56,7 @@ app.route('/api/endpoints').post((req, res) => {
                     time: req.body.time,
                     body: req.body.body,
                     headers: req.body.headers,
+                    velocity: req.body.velocity ? req.body.velocity : { enabled: true},
                 });
                 createNew = false;
             }
@@ -63,6 +69,7 @@ app.route('/api/endpoints').post((req, res) => {
                 time: req.body.time,
                 body: req.body.body,
                 headers: req.body.headers,
+                velocity: req.body.velocity ? req.body.velocity : { enabled: true},
             });
             createNew = false;
         }
@@ -76,6 +83,7 @@ app.route('/api/endpoints').post((req, res) => {
             time: req.body.time,
             body: req.body.body,
             headers: req.body.headers,
+            velocity: req.body.velocity ? req.body.velocity : { enabled: true},
         });
     }
 
@@ -115,9 +123,17 @@ http.createServer((req, res) => {
     const uri = url.parse(req.url).pathname;
 
     endpoints.forEach((endpoint) => {
-        const reg = new RegExp('^' + endpoint.uri + '$');
-        if (!foundEndpoint && reg.test(uri) && (!endpoint.method || req.method === endpoint.method)) {
-            foundEndpoint = endpoint;
+        let keys = [];
+        const re = pathToRegexp(endpoint.uri, keys);
+        const params = re.exec(uri);
+
+        if (!foundEndpoint && params !== null && (!endpoint.method || req.method === endpoint.method)) {
+            foundEndpoint = JSON.parse(JSON.stringify(endpoint));
+            foundEndpoint.params = {};
+
+            keys.forEach((key, index) => {
+                foundEndpoint.params[key.name] = params[index+1];
+            });
         }
     });
 
@@ -127,10 +143,17 @@ http.createServer((req, res) => {
         }
 
         res.writeHead(foundEndpoint.status, foundEndpoint.headers);
-        res.write(Velocity.render(foundEndpoint.body, {
-            req: req,
-            endpoint: foundEndpoint
-        }));
+
+        if (foundEndpoint.velocity.enabled) {
+            res.write(Velocity.render(foundEndpoint.body, {
+                req: req,
+                endpoint: foundEndpoint,
+                context: foundEndpoint.velocity.context,
+                params: foundEndpoint.params
+            }));
+        } else {
+            res.write(foundEndpoint.body);
+        }
     } else {
         res.writeHead(404, {});
     }

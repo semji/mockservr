@@ -36,6 +36,7 @@
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
     "font-awesome": "^4.7.0",
+    "path-to-regexp": "^1.7.0",
     "sleep": "^5.1.1",
     "velocityjs": "^0.9.6",
     "vue": "^2.2.6"
