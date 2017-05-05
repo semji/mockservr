@@ -133,6 +133,7 @@ http.createServer((req, res) => {
 
         if (foundEndpoint.velocity.enabled) {
             res.write(Velocity.render(foundEndpoint.body, {
+                math: Math,
                 req: req,
                 endpoint: foundEndpoint,
                 context: foundEndpoint.velocity.context,
