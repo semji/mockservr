@@ -107,7 +107,9 @@ app.listen(4580);
 
 http.createServer((req, res) => {
     let foundEndpoint;
-    const uri = url.parse(req.url).pathname;
+    const urlParse = url.parse(req.url, true);
+    const uri = urlParse.pathname;
+    req.query = urlParse.query;
 
     endpoints.forEach((endpoint) => {
         let keys = [];
