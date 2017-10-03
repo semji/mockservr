@@ -1,13 +1,15 @@
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const Velocity = require('velocityjs');
 const sleep = require('sleep');
 const pathToRegexp = require('path-to-regexp');
 const app = express();
-const endpoints = require('./endpoints');
+const mocksDirectory = './mocks/';
+let endpoints = buildEndpoints();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -151,5 +153,20 @@ http.createServer((req, res) => {
     res.end();
 }).listen(80);
 
-fs.watchFile('./mocks/', function () {
+function buildEndpoints() {
+    let endpoints = [];
+
+    fs.readdirSync(mocksDirectory).filter((fileName) => {
+        return path.extname(fileName) === '.json';
+    }).forEach((endpointFile) => {
+        let content = fs.readFileSync(mocksDirectory + endpointFile, 'utf8');
+
+        endpoints = endpoints.concat(JSON.parse(content));
+    });
+
+    return endpoints;
+}
+
+fs.watchFile(mocksDirectory, function () {
+    endpoints = buildEndpoints();
 });
