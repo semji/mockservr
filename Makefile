@@ -11,3 +11,6 @@ npm_clear:
 
 dev: npm_install
 	docker-compose up
+
+reset_compose_override:
+	cp docker-compose.override.dist.yml docker-compose.override.yml
