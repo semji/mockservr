@@ -13,8 +13,13 @@ const mocksDirectory = './mocks/';
 
 const LOG_PREFIX = '[mockserver] ';
 
+console.log(LOG_PREFIX + colors.cyan('Starting to compile endpoints...'));
+
 let endpoints = buildEndpoints();
 
+console.log(LOG_PREFIX + colors.cyan('Compilation ended'));
+
+console.log(LOG_PREFIX + colors.cyan('Ready to handle connections...'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
