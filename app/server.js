@@ -1,6 +1,7 @@
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
+const colors = require('colors/safe');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -9,6 +10,9 @@ const sleep = require('sleep');
 const pathToRegexp = require('path-to-regexp');
 const app = express();
 const mocksDirectory = './mocks/';
+
+const LOG_PREFIX = '[mockserver] ';
+
 let endpoints = buildEndpoints();
 
 app.use(bodyParser.json());
@@ -159,14 +163,24 @@ function buildEndpoints() {
     fs.readdirSync(mocksDirectory).filter((fileName) => {
         return path.extname(fileName) === '.json';
     }).forEach((endpointFile) => {
-        let content = fs.readFileSync(mocksDirectory + endpointFile, 'utf8');
+        const filePath = mocksDirectory + endpointFile;
+        let content = fs.readFileSync(filePath, 'utf8');
 
-        endpoints = endpoints.concat(JSON.parse(content));
+        try {
+            endpoints = endpoints.concat(JSON.parse(content));
+
+            console.log(LOG_PREFIX + '\t' + colors.green('File %s successfully compiled'), filePath);
+        } catch (e) {
+            console.log(LOG_PREFIX + '\t' + colors.red('File %s failed to compile'), filePath);
+            console.log(LOG_PREFIX + '\t' + colors.red(e));
+        }
     });
 
     return endpoints;
 }
 
 fs.watchFile(mocksDirectory, function () {
+    console.log(LOG_PREFIX + colors.cyan('Change detected, start to compile endpoints...'));
     endpoints = buildEndpoints();
+    console.log(LOG_PREFIX + colors.cyan('Compilation ended'));
 });
