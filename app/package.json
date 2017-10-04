@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "start-dev": "nodemon server.js",
+    "start-dev": "nodemon --ignore 'mocks/*.json' server.js",
     "sass-build": "node-sass --output-style compressed --include-path scss ./frontend/sass/global.scss dist/app.css",
     "sass-watch": "node-sass -w --output-style compressed --include-path scss ./frontend/sass/global.scss dist/app.css",
     "webpack-build": "webpack",
