@@ -1,30 +1,20 @@
-# mockserver
+# Mockserver
 
-## docker-compose override
+## Starting the application with Docker
 
-```yaml
-version: '2'
+### Requirements
 
-services:
-  mockserver:
-    command: npm run start-dev
-    volumes:
-      - ./app:/usr/src/app
-    ports:
-      - 8085:80
-      - 8045:4580
+It is necessary for starting the project with Docker to have :
 
-  sass-watch:
-      image: node:7
-      command: npm run sass-watch
-      working_dir: /usr/src/app
-      volumes:
-        - ./app:/usr/src/app
-        
-  webpack-watch:
-      image: node:7
-      command: npm run webpack-watch
-      working_dir: /usr/src/app
-      volumes:
-        - ./app:/usr/src/app
-```
+* `docker` >= `1.10.1`
+* `docker-compose` >= `1.7`
+
+### Steps
+
+Launch the following command in order to generate `docker-compose.override.yml` file. You can customize it to your specific needs:
+
+`make reset_compose_override`
+
+And launch the server with:
+
+`make dev`
