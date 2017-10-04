@@ -1,14 +1,25 @@
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
+const colors = require('colors/safe');
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const Velocity = require('velocityjs');
 const sleep = require('sleep');
 const pathToRegexp = require('path-to-regexp');
 const app = express();
-const endpoints = require('./endpoints');
+const mocksDirectory = './mocks/';
 
+const LOG_PREFIX = '[mockserver] ';
+
+console.log(LOG_PREFIX + colors.cyan('Starting to compile endpoints...'));
+
+let endpoints = buildEndpoints();
+
+console.log(LOG_PREFIX + colors.cyan('Compilation ended'));
+
+console.log(LOG_PREFIX + colors.cyan('Ready to handle connections...'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -151,5 +162,30 @@ http.createServer((req, res) => {
     res.end();
 }).listen(80);
 
-fs.watchFile('./mocks/', function () {
+function buildEndpoints() {
+    let endpoints = [];
+
+    fs.readdirSync(mocksDirectory).filter((fileName) => {
+        return path.extname(fileName) === '.json';
+    }).forEach((endpointFile) => {
+        const filePath = mocksDirectory + endpointFile;
+        let content = fs.readFileSync(filePath, 'utf8');
+
+        try {
+            endpoints = endpoints.concat(JSON.parse(content));
+
+            console.log(LOG_PREFIX + '\t' + colors.green('File %s successfully compiled'), filePath);
+        } catch (e) {
+            console.log(LOG_PREFIX + '\t' + colors.red('File %s failed to compile'), filePath);
+            console.log(LOG_PREFIX + '\t' + colors.red(e));
+        }
+    });
+
+    return endpoints;
+}
+
+fs.watchFile(mocksDirectory, function () {
+    console.log(LOG_PREFIX + colors.cyan('Change detected, start to compile endpoints...'));
+    endpoints = buildEndpoints();
+    console.log(LOG_PREFIX + colors.cyan('Compilation ended'));
 });
