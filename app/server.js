@@ -1,7 +1,9 @@
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
+const watch = require('node-watch');
 const colors = require('colors/safe');
+const read = require('fs-readdir-recursive')
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -167,20 +169,24 @@ function getEndpointBody(endpoint) {
         return endpoint.body;
     }
 
-    return fs.readFileSync(mocksDirectory + endpoint.bodyFile, 'utf8');
+    return fs.readFileSync(path.resolve(endpoint.currentDirectory, endpoint.bodyFile), 'utf8');
 }
 
 function buildEndpoints() {
     let endpoints = [];
 
-    fs.readdirSync(mocksDirectory).filter((fileName) => {
-        return path.extname(fileName) === '.json';
+    read(mocksDirectory).filter((fileName) => {
+        return path.extname(fileName) === '.mock';
     }).forEach((endpointFile) => {
-        const filePath = mocksDirectory + endpointFile;
+        const filePath = path.resolve(mocksDirectory, endpointFile);
         let content = fs.readFileSync(filePath, 'utf8');
 
         try {
-            endpoints = endpoints.concat(JSON.parse(content));
+            endpoints = endpoints.concat(JSON.parse(content).map((endpoint) => {
+                endpoint.currentDirectory = path.dirname(filePath);
+
+                return endpoint;
+            }));
 
             console.log(LOG_PREFIX + '\t' + colors.green('File %s successfully compiled'), filePath);
         } catch (e) {
@@ -192,7 +198,7 @@ function buildEndpoints() {
     return endpoints;
 }
 
-fs.watchFile(mocksDirectory, function () {
+watch(mocksDirectory, {recursive: true}, function () {
     console.log(LOG_PREFIX + colors.cyan('Change detected, start to compile endpoints...'));
     endpoints = buildEndpoints();
     console.log(LOG_PREFIX + colors.cyan('Compilation ended'));

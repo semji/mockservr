@@ -36,6 +36,8 @@
     "colors": "^1.1.2",
     "express": "^4.15.2",
     "font-awesome": "^4.7.0",
+    "fs-readdir-recursive": "^1.0.0",
+    "node-watch": "^0.5.5",
     "path": "^0.12.7",
     "path-to-regexp": "^1.7.0",
     "sleep": "^5.1.1",
