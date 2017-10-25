@@ -187,7 +187,7 @@ function isEndpointMatch(endpoint, request) {
 }
 
 function getEndpointBody(endpoint) {
-    if (endpoint.body) {
+    if (endpoint.body !== undefined) {
         return endpoint.body;
     }
 
