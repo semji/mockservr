@@ -23,10 +23,10 @@ console.log(LOG_PREFIX + colors.cyan('Compilation ended'));
 
 console.log(LOG_PREFIX + colors.cyan('Ready to handle connections...'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.route('/api/endpoints').post((req, res) => {
-    if (!req.body.uri || !req.body.status || !req.body.body || !req.body.headers) {
+    if (!req.body.uri || !req.body.status || !req.body.body || !req.body.headers) {
         res.writeHead(400);
         res.end();
         return;
@@ -45,7 +45,7 @@ app.route('/api/endpoints').post((req, res) => {
                     time: req.body.time,
                     body: req.body.body,
                     headers: req.body.headers,
-                    velocity: req.body.velocity ? req.body.velocity : { enabled: true},
+                    velocity: req.body.velocity ? req.body.velocity : {enabled: true},
                 };
                 createNew = false;
             } else if (!endpoint.method && createNew) {
@@ -56,7 +56,7 @@ app.route('/api/endpoints').post((req, res) => {
                     time: req.body.time,
                     body: req.body.body,
                     headers: req.body.headers,
-                    velocity: req.body.velocity ? req.body.velocity : { enabled: true},
+                    velocity: req.body.velocity ? req.body.velocity : {enabled: true},
                 });
                 createNew = false;
             }
@@ -69,7 +69,7 @@ app.route('/api/endpoints').post((req, res) => {
                 time: req.body.time,
                 body: req.body.body,
                 headers: req.body.headers,
-                velocity: req.body.velocity ? req.body.velocity : { enabled: true},
+                velocity: req.body.velocity ? req.body.velocity : {enabled: true},
             });
             createNew = false;
         }
@@ -83,7 +83,7 @@ app.route('/api/endpoints').post((req, res) => {
             time: req.body.time,
             body: req.body.body,
             headers: req.body.headers,
-            velocity: req.body.velocity ? req.body.velocity : { enabled: true},
+            velocity: req.body.velocity ? req.body.velocity : {enabled: true},
         });
     }
 
@@ -101,7 +101,7 @@ app.route('/api/endpoints').post((req, res) => {
     }
 
     endpoints.forEach((endpoint, index) => {
-        if (req.body.uri === endpoint.uri && (!req.body.method || req.body.method === endpoint.method)) {
+        if (req.body.uri === endpoint.uri && (!req.body.method || req.body.method === endpoint.method)) {
             endpoints.splice(index, 1);
         }
     });
@@ -129,12 +129,12 @@ http.createServer((req, res) => {
         const re = pathToRegexp(endpoint.uri, keys);
         const params = re.exec(uri);
 
-        if (!foundEndpoint && params !== null && (!endpoint.method || req.method === endpoint.method)) {
+        if (!foundEndpoint && params !== null && (!endpoint.method || req.method === endpoint.method)) {
             foundEndpoint = JSON.parse(JSON.stringify(endpoint));
             foundEndpoint.params = {};
 
             keys.forEach((key, index) => {
-                foundEndpoint.params[key.name] = params[index+1];
+                foundEndpoint.params[key.name] = params[index + 1];
             });
         }
     });
@@ -198,7 +198,7 @@ function buildEndpoints() {
     return endpoints;
 }
 
-watch(mocksDirectory, {recursive: true}, function () {
+watch(mocksDirectory, {recursive: true}, () => {
     console.log(LOG_PREFIX + colors.cyan('Change detected, start to compile endpoints...'));
     endpoints = buildEndpoints();
     console.log(LOG_PREFIX + colors.cyan('Compilation ended'));
