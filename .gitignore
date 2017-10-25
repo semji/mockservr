@@ -1,8 +1,6 @@
 .idea
 /app/mocks/*
-/app/node_modules/*
-/app/frontend/app.css
-/app/dist
 !/app/mocks/.keep
-!/app/mocks/vidlis.json
+/app/node_modules
+/app/dist
 /docker-compose.override.yml

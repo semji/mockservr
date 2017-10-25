@@ -1,47 +1,31 @@
 {
   "name": "mockserver",
-  "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node server.js",
-    "start-dev": "nodemon --ignore 'mocks/*.json' server.js",
-    "sass-build": "node-sass --output-style compressed --include-path scss ./frontend/sass/global.scss dist/app.css",
-    "sass-watch": "node-sass -w --output-style compressed --include-path scss ./frontend/sass/global.scss dist/app.css",
-    "webpack-build": "webpack",
-    "webpack-watch": "webpack -w"
+    "start": "node app.js",
+    "start-dev": "nodemon --ignore 'mocks/*.json' app.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tejerka/mockserver.git"
   },
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/tejerka/mockserver/issues"
   },
   "homepage": "https://github.com/tejerka/mockserver#readme",
   "devDependencies": {
-    "babel-core": "^6.24.1",
-    "babel-loader": "^7.0.0",
-    "css-loader": "^0.28.0",
-    "node-sass": "^4.5.2",
-    "nodemon": "^1.11.0",
-    "vue-loader": "^11.3.4",
-    "vue-template-compiler": "^2.2.6",
-    "webpack": "^2.4.1"
+    "nodemon": "^1.11.0"
   },
   "dependencies": {
     "body-parser": "^1.17.1",
     "colors": "^1.1.2",
     "express": "^4.15.2",
-    "font-awesome": "^4.7.0",
     "fs-readdir-recursive": "^1.0.0",
     "node-watch": "^0.5.5",
     "path": "^0.12.7",
     "path-to-regexp": "^1.7.0",
     "sleep": "^5.1.1",
-    "velocityjs": "^0.9.6",
-    "vue": "^2.2.6"
+    "velocityjs": "^0.9.6"
   }
 }
