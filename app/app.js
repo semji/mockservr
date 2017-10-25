@@ -129,7 +129,7 @@ http.createServer((req, res) => {
         const re = pathToRegexp(endpoint.uri, keys);
         const params = re.exec(uri);
 
-        if (!foundEndpoint && params !== null && (!endpoint.method || req.method === endpoint.method)) {
+        if (!foundEndpoint && params !== null && isEndpointMatch(endpoint, req)) {
             foundEndpoint = JSON.parse(JSON.stringify(endpoint));
             foundEndpoint.params = {};
 
@@ -163,6 +163,28 @@ http.createServer((req, res) => {
 
     res.end();
 }).listen(80);
+
+function isEndpointMatch(endpoint, request) {
+    let matchQuery = true;
+
+    if (endpoint.query) {
+        Object.keys(endpoint.query).forEach((key) => {
+            if (!request.query[key]) {
+                matchQuery = false;
+
+                return ;
+            }
+
+            if (request.query[key] === endpoint.query[key]) {
+                return ;
+            }
+
+            matchQuery = false;
+        });
+    }
+
+    return (!endpoint.method || request.method === endpoint.method) && matchQuery;
+}
 
 function getEndpointBody(endpoint) {
     if (endpoint.body) {
