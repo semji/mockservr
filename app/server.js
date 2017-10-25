@@ -145,7 +145,7 @@ http.createServer((req, res) => {
         res.writeHead(foundEndpoint.status, foundEndpoint.headers);
 
         if (foundEndpoint.velocity.enabled) {
-            res.write(Velocity.render(foundEndpoint.body, {
+            res.write(Velocity.render(getEndpointBody(foundEndpoint), {
                 math: Math,
                 req: req,
                 endpoint: foundEndpoint,
@@ -153,7 +153,7 @@ http.createServer((req, res) => {
                 params: foundEndpoint.params
             }));
         } else {
-            res.write(foundEndpoint.body);
+            res.write(getEndpointBody(foundEndpoint));
         }
     } else {
         res.writeHead(404, {});
@@ -161,6 +161,14 @@ http.createServer((req, res) => {
 
     res.end();
 }).listen(80);
+
+function getEndpointBody(endpoint) {
+    if (endpoint.body) {
+        return endpoint.body;
+    }
+
+    return fs.readFileSync(mocksDirectory + endpoint.bodyFile, 'utf8');
+}
 
 function buildEndpoints() {
     let endpoints = [];
