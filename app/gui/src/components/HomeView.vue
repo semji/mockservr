@@ -1,6 +1,6 @@
 <template>
     <div id="home-view" class="view">
-        <h1>{{ $parameters.apiUrl }}</h1>
+        <h1>Hello World!</h1>
     </div>
 </template>
 

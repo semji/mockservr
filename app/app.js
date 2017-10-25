@@ -165,7 +165,25 @@ http.createServer((req, res) => {
 }).listen(80);
 
 function isEndpointMatch(endpoint, request) {
-    return (!endpoint.method || request.method === endpoint.method);
+    let matchQuery = true;
+
+    if (endpoint.query) {
+        Object.keys(endpoint.query).forEach((key) => {
+            if (!request.query[key]) {
+                matchQuery = false;
+
+                return ;
+            }
+
+            if (request.query[key] === endpoint.query[key]) {
+                return ;
+            }
+
+            matchQuery = false;
+        });
+    }
+
+    return (!endpoint.method || request.method === endpoint.method) && matchQuery;
 }
 
 function getEndpointBody(endpoint) {
