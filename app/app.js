@@ -13,7 +13,7 @@ const pathToRegexp = require('path-to-regexp');
 const app = express();
 const mocksDirectory = './mocks/';
 
-const LOG_PREFIX = '[mockserver] ';
+const LOG_PREFIX = '[mockservr] ';
 
 console.log(LOG_PREFIX + colors.cyan('Starting to compile endpoints...'));
 

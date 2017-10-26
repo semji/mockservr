@@ -1,4 +1,4 @@
-# Mockserver
+# Mockservr
 
 ## Starting the application with Docker
 
