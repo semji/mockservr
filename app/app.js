@@ -119,43 +119,13 @@ app.route('*').get((req, res) => {
 app.listen(4580);
 
 http.createServer((req, res) => {
-    let foundEndpoint;
-    const urlParse = url.parse(req.url, true);
-    const uri = urlParse.pathname;
-    req.query = urlParse.query;
+    let foundEndpoint = findEndpoint(endpoints, req);
 
-    endpoints.forEach((endpoint) => {
-        let keys = [];
-        const re = pathToRegexp(endpoint.uri, keys);
-        const params = re.exec(uri);
+    if (foundEndpoint !== null) {
+        if (Array.isArray(foundEndpoint.response)) {
 
-        if (!foundEndpoint && params !== null && isEndpointMatch(endpoint, req)) {
-            foundEndpoint = JSON.parse(JSON.stringify(endpoint));
-            foundEndpoint.params = {};
-
-            keys.forEach((key, index) => {
-                foundEndpoint.params[key.name] = params[index + 1];
-            });
-        }
-    });
-
-    if (foundEndpoint) {
-        if (foundEndpoint.time) {
-            sleep.msleep(foundEndpoint.time);
-        }
-
-        res.writeHead(foundEndpoint.status, foundEndpoint.headers);
-
-        if (foundEndpoint.velocity.enabled) {
-            res.write(Velocity.render(getEndpointBody(foundEndpoint), {
-                math: Math,
-                req: req,
-                endpoint: foundEndpoint,
-                context: foundEndpoint.velocity.context,
-                params: foundEndpoint.params
-            }));
         } else {
-            res.write(getEndpointBody(foundEndpoint));
+            writeResponse(req, res, foundEndpoint, foundEndpoint.response);
         }
     } else {
         res.writeHead(404, {});
@@ -164,34 +134,120 @@ http.createServer((req, res) => {
     res.end();
 }).listen(80);
 
-function isEndpointMatch(endpoint, request) {
+function writeResponse(request, response, endpoint, endpointResponse) {
+    if (endpointResponse.time) {
+        sleep.msleep(v.time);
+    }
+
+    response.writeHead(endpointResponse.status || 200, endpointResponse.headers);
+
+    if (endpointResponse.velocity && endpointResponse.velocity.enabled) {
+        response.write(Velocity.render(getEndpointBody(endpoint, endpointResponse), {
+            math: Math,
+            req: request,
+            endpoint: endpoint,
+            context: endpointResponse.velocity.context,
+            params: endpoint.params
+        }));
+    } else {
+        response.write(getEndpointBody(endpoint, endpointResponse));
+    }
+}
+
+function isRequestMatch(endpointRequest, request, endpointParams) {
+    if (endpointRequest.method && request.method !== endpointRequest.method) {
+        return false;
+    }
+
+    let keys = [];
+    const re = pathToRegexp(endpointRequest.uri, keys);
+    const params = re.exec(request.uri);
+
+    if (params === null) {
+        return false;
+    }
+
     let matchQuery = true;
 
-    if (endpoint.query) {
-        Object.keys(endpoint.query).forEach((key) => {
+    if (endpointRequest.query) {
+        Object.keys(endpointRequest.query).forEach((key) => {
             if (!request.query[key]) {
                 matchQuery = false;
-
-                return ;
+                return;
             }
 
-            if (request.query[key] === endpoint.query[key]) {
-                return ;
+            if (!(new RegExp(endpointRequest.query[key])).test(request.query[key])) {
+                matchQuery = false;
             }
-
-            matchQuery = false;
         });
     }
 
-    return (!endpoint.method || request.method === endpoint.method) && matchQuery;
-}
-
-function getEndpointBody(endpoint) {
-    if (endpoint.body !== undefined) {
-        return endpoint.body;
+    if (!matchQuery) {
+        return false;
     }
 
-    return fs.readFileSync(path.resolve(endpoint.currentDirectory, endpoint.bodyFile), 'utf8');
+    let matchHeader = true;
+
+    if (endpointRequest.headers) {
+        Object.keys(endpointRequest.headers).forEach((key) => {
+            if (!request.headers[key]) {
+                matchHeader = false;
+                return;
+            }
+
+            if (!(new RegExp(endpointRequest.headers[key])).test(request.headers[key])) {
+                matchHeader = false;
+            }
+        });
+    }
+
+    if (!matchHeader) {
+        return false;
+    }
+
+    keys.forEach((key, index) => {
+        endpointParams[key.name] = params[index + 1];
+    });
+
+    return true;
+}
+
+function findEndpoint(endpoints, request) {
+    let params = {};
+    const urlParse = url.parse(request.url, true);
+    request.uri = urlParse.pathname;
+    request.query = urlParse.query;
+
+    let foundEndpoint = endpoints.find((endpoint) => {
+        if (Array.isArray(endpoint.request)) {
+            if (endpoint.request.find((endpointRequest) => {
+                    return isRequestMatch(endpointRequest, request, params);
+                })) {
+                return true;
+            }
+        } else {
+            if (isRequestMatch(endpoint.request, request, params)) {
+                return true;
+            }
+        }
+    });
+
+    if (!foundEndpoint) {
+        return null;
+    }
+
+    foundEndpoint = JSON.parse(JSON.stringify(foundEndpoint));
+    foundEndpoint.params = params;
+
+    return foundEndpoint;
+}
+
+function getEndpointBody(endpoint, endpointResponse) {
+    if (endpointResponse.body !== undefined) {
+        return endpointResponse.body;
+    }
+
+    return fs.readFileSync(path.resolve(endpoint.currentDirectory, endpointResponse.bodyFile), 'utf8');
 }
 
 function buildEndpoints() {
