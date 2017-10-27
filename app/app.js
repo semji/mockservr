@@ -1,9 +1,9 @@
 const fs = require('fs');
 const watch = require('node-watch');
 const colors = require('colors/safe');
-const read = require('fs-readdir-recursive')
+const read = require('fs-readdir-recursive');
 const path = require('path');
-const httpAppServer = require('./http-app-server');
+const HttpAppServer = require('./http-app-server');
 const HttpMockServer = require('./http-mock-server');
 
 const mocksDirectory = './mocks/';
@@ -16,12 +16,12 @@ class App {
         this.buildEndpoints();
         console.log(LOG_PREFIX + colors.cyan('Compilation ended'));
         console.log(LOG_PREFIX + colors.cyan('Ready to handle connections...'));
-        this.httpAppServer = new httpAppServer(this.endpoints);
-        this.httpMockServer = new HttpMockServer(this.endpoints);
+        this.httpAppServer = new HttpAppServer(this);
+        this.httpMockServer = new HttpMockServer(this);
     }
 
     buildEndpoints() {
-        let endpoints = [];
+        this.endpoints = [];
 
         read(mocksDirectory).filter((fileName) => {
             return path.extname(fileName) === '.mock';
@@ -30,7 +30,7 @@ class App {
             let content = fs.readFileSync(filePath, 'utf8');
 
             try {
-                endpoints = endpoints.concat(JSON.parse(content).map((endpoint) => {
+                this.endpoints = this.endpoints.concat(JSON.parse(content).map((endpoint) => {
                     endpoint.currentDirectory = path.dirname(filePath);
 
                     return endpoint;
@@ -42,8 +42,6 @@ class App {
                 console.log(LOG_PREFIX + '\t' + colors.red(e));
             }
         });
-
-        this.endpoints = endpoints;
     }
 }
 

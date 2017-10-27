@@ -2,8 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 class HttpAppServer {
-    constructor(endpoints) {
-        this.endpoints = endpoints;
+    constructor(app) {
+        this.app = app;
         this.app = express();
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
@@ -18,10 +18,10 @@ class HttpAppServer {
             let createNew = true;
             let uriFounded = false;
 
-            this.endpoints.forEach((endpoint, index) => {
+            this.app.endpoints.forEach((endpoint, index) => {
                 if (req.body.uri === endpoint.uri) {
                     if (req.body.method === endpoint.method) {
-                        this.endpoints[index] = {
+                        this.app.endpoints[index] = {
                             uri: req.body.uri,
                             method: req.body.method,
                             status: req.body.status,
@@ -32,7 +32,7 @@ class HttpAppServer {
                         };
                         createNew = false;
                     } else if (!endpoint.method && createNew) {
-                        this.endpoints.splice(index, 0, {
+                        this.app.endpoints.splice(index, 0, {
                             uri: req.body.uri,
                             method: req.body.method,
                             status: req.body.status,
@@ -45,7 +45,7 @@ class HttpAppServer {
                     }
                     uriFounded = true;
                 } else if (uriFounded && createNew) {
-                    this.endpoints.splice(index, 0, {
+                    this.app.endpoints.splice(index, 0, {
                         uri: req.body.uri,
                         method: req.body.method,
                         status: req.body.status,
@@ -59,7 +59,7 @@ class HttpAppServer {
             });
 
             if (createNew) {
-                this.endpoints.push({
+                this.app.endpoints.push({
                     uri: req.body.uri,
                     method: req.body.method,
                     status: req.body.status,
@@ -74,7 +74,7 @@ class HttpAppServer {
             res.end();
         }).get((req, res) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
-            res.write(JSON.stringify(this.endpoints));
+            res.write(JSON.stringify(this.app.endpoints));
             res.end();
         }).delete((req, res) => {
             if (!req.body.uri) {
@@ -83,9 +83,9 @@ class HttpAppServer {
                 return;
             }
 
-            this.endpoints.forEach((endpoint, index) => {
+            this.app.endpoints.forEach((endpoint, index) => {
                 if (req.body.uri === endpoint.uri && (!req.body.method || req.body.method === endpoint.method)) {
-                    this.endpoints.splice(index, 1);
+                    this.app.endpoints.splice(index, 1);
                 }
             });
 

@@ -7,8 +7,8 @@ const pathToRegexp = require('path-to-regexp');
 const path = require('path');
 
 class HttpMockServer {
-    constructor(endpoints) {
-        this.endpoints = endpoints;
+    constructor(app) {
+        this.app = app;
         http.createServer((req, res) => {
             let foundEndpoint = this.findEndpoint(req);
 
@@ -20,10 +20,10 @@ class HttpMockServer {
                     });
                     const randIndex = weightResponseIndexes[Math.floor(Math.random() * weightResponseIndexes.length)];
                     if (randIndex !== undefined) {
-                        this.writeResponse(req, res, foundEndpoint, foundEndpoint.response[randIndex]);
+                        HttpMockServer.writeResponse(req, res, foundEndpoint, foundEndpoint.response[randIndex]);
                     }
                 } else {
-                    this.writeResponse(req, res, foundEndpoint, foundEndpoint.response);
+                    HttpMockServer.writeResponse(req, res, foundEndpoint, foundEndpoint.response);
                 }
             } else {
                 res.writeHead(404, {});
@@ -33,15 +33,21 @@ class HttpMockServer {
         }).listen(80);
     }
 
-    writeResponse(request, response, endpoint, endpointResponse) {
-        if (endpointResponse.time) {
-            sleep.msleep(v.time);
+    static writeResponse(request, response, endpoint, endpointResponse) {
+        if (endpointResponse.delay) {
+            if (Array.isArray(endpointResponse.delay)) {
+                if (endpointResponse.delay.length === 2) {
+                    sleep.msleep(Math.floor(Math.random() * (endpointResponse.delay[1] - endpointResponse.delay[0])) + endpointResponse.delay[0]);
+                }
+            } else {
+                sleep.msleep(endpointResponse.delay);
+            }
         }
 
         response.writeHead(endpointResponse.status || 200, endpointResponse.headers);
 
         if (endpointResponse.velocity && endpointResponse.velocity.enabled) {
-            response.write(Velocity.render(this.getEndpointBody(endpoint, endpointResponse), {
+            response.write(Velocity.render(HttpMockServer.getEndpointBody(endpoint, endpointResponse), {
                 math: Math,
                 req: request,
                 endpoint: endpoint,
@@ -49,18 +55,34 @@ class HttpMockServer {
                 params: endpoint.params
             }));
         } else {
-            response.write(this.getEndpointBody(endpoint, endpointResponse));
+            response.write(HttpMockServer.getEndpointBody(endpoint, endpointResponse));
         }
     }
 
-    isRequestMatch(endpointRequest, request, endpointParams) {
+    static getEndpointPath(endpoint, endpointRequest) {
+        let basePath = endpoint.basePath || '';
+
+        if (basePath !== '') {
+            basePath = '/' + basePath.replace(/^\//, "");
+        }
+
+        return basePath.replace(/\/$/, "") + '/' + endpointRequest.path.replace(/^\//, "");
+    }
+
+    isRequestMatch(endpoint, endpointRequest, request, endpointParams) {
+        endpoint.callCount = endpoint.callCount || 0;
+
+        if (endpoint.maxCalls && endpoint.callCount >= endpoint.maxCalls) {
+            return false;
+        }
+
         if (endpointRequest.method && request.method !== endpointRequest.method) {
             return false;
         }
 
         let keys = [];
-        const re = pathToRegexp(endpointRequest.uri, keys);
-        const params = re.exec(request.uri);
+        const re = pathToRegexp(HttpMockServer.getEndpointPath(endpoint, endpointRequest), keys);
+        const params = re.exec(request.path);
 
         if (params === null) {
             return false;
@@ -114,18 +136,18 @@ class HttpMockServer {
     findEndpoint(request) {
         let params = {};
         const urlParse = url.parse(request.url, true);
-        request.uri = urlParse.pathname;
+        request.path = urlParse.pathname;
         request.query = urlParse.query;
 
-        let foundEndpoint = this.endpoints.find((endpoint) => {
+        let foundEndpoint = this.app.endpoints.find((endpoint) => {
             if (Array.isArray(endpoint.request)) {
                 if (endpoint.request.find((endpointRequest) => {
-                        return this.isRequestMatch(endpointRequest, request, params);
+                        return this.isRequestMatch(endpoint, endpointRequest, request, params);
                     })) {
                     return true;
                 }
             } else {
-                if (this.isRequestMatch(endpoint.request, request, params)) {
+                if (this.isRequestMatch(endpoint, endpoint.request, request, params)) {
                     return true;
                 }
             }
@@ -135,13 +157,14 @@ class HttpMockServer {
             return null;
         }
 
+        foundEndpoint.callCount++;
         foundEndpoint = JSON.parse(JSON.stringify(foundEndpoint));
         foundEndpoint.params = params;
 
         return foundEndpoint;
     }
 
-    getEndpointBody(endpoint, endpointResponse) {
+    static getEndpointBody(endpoint, endpointResponse) {
         if (endpointResponse.body !== undefined) {
             return endpointResponse.body;
         }
