@@ -14,7 +14,14 @@ class HttpMockServer {
 
             if (foundEndpoint !== null) {
                 if (Array.isArray(foundEndpoint.response)) {
-
+                    let weightResponseIndexes = [];
+                    foundEndpoint.response.forEach((responseItem, index) => {
+                        weightResponseIndexes = weightResponseIndexes.concat((new Array(responseItem.weight || 1)).fill(index));
+                    });
+                    const randIndex = weightResponseIndexes[Math.floor(Math.random() * weightResponseIndexes.length)];
+                    if (randIndex !== undefined) {
+                        this.writeResponse(req, res, foundEndpoint, foundEndpoint.response[randIndex]);
+                    }
                 } else {
                     this.writeResponse(req, res, foundEndpoint, foundEndpoint.response);
                 }
