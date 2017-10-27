@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-class ApiServer {
+class HttpAppServer {
     constructor(endpoints) {
         this.endpoints = endpoints;
         this.app = express();
@@ -103,4 +103,4 @@ class ApiServer {
     }
 }
 
-module.exports = ApiServer;
+module.exports = HttpAppServer;
