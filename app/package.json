@@ -1,5 +1,5 @@
 {
-  "name": "mockserver",
+  "name": "mockservr",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tejerka/mockserver.git"
+    "url": "git+https://github.com/mockservr/mockservr.git"
   },
   "bugs": {
-    "url": "https://github.com/tejerka/mockserver/issues"
+    "url": "https://github.com/mockservr/mockservr/issues"
   },
-  "homepage": "https://github.com/tejerka/mockserver#readme",
+  "homepage": "https://github.com/mockservr/mockservr#readme",
   "devDependencies": {
     "nodemon": "^1.11.0"
   },
