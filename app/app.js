@@ -3,11 +3,19 @@ const watch = require('node-watch');
 const colors = require('colors/safe');
 const read = require('fs-readdir-recursive');
 const path = require('path');
+const yaml = require('js-yaml');
 const HttpAppServer = require('./http-app-server');
 const HttpMockServer = require('./http-mock-server');
 
 const mocksDirectory = './mocks/';
 const LOG_PREFIX = '[mockservr] ';
+const PARSER_JSON = 'JSON';
+const PARSER_YAML = 'YAML';
+const mockFileExtensionsParsers = {
+    '.mock': PARSER_JSON,
+    '.mock.yml': PARSER_YAML,
+    '.mock.json': PARSER_JSON
+};
 
 class App {
     constructor() {
@@ -20,17 +28,31 @@ class App {
         this.httpMockServer = new HttpMockServer(this);
     }
 
+    parseEndpointConfig(content, parser) {
+        switch (parser) {
+            case PARSER_JSON:
+                return JSON.parse(content);
+            case PARSER_YAML:
+                return yaml.safeLoad(content);
+        }
+    }
+
+    getEndpointFileExtension(fileName) {
+        return Object.keys(mockFileExtensionsParsers).find((extension) => fileName.endsWith(extension))
+    }
+
     buildEndpoints() {
         this.endpoints = [];
 
-        read(mocksDirectory).filter((fileName) => {
-            return path.extname(fileName) === '.mock';
-        }).forEach((endpointFile) => {
+        read(mocksDirectory).filter((fileName) =>
+            this.getEndpointFileExtension(fileName) !== undefined
+        ).forEach((endpointFile) => {
             const filePath = path.resolve(mocksDirectory, endpointFile);
             let content = fs.readFileSync(filePath, 'utf8');
+            let parser = mockFileExtensionsParsers[this.getEndpointFileExtension(filePath)];
 
             try {
-                this.endpoints = this.endpoints.concat(JSON.parse(content).map((endpoint) => {
+                this.endpoints = this.endpoints.concat(this.parseEndpointConfig(content, parser).map((endpoint) => {
                     endpoint.currentDirectory = path.dirname(filePath);
 
                     return endpoint;
