@@ -14,6 +14,7 @@ const PARSER_YAML = 'YAML';
 const mockFileExtensionsParsers = {
     '.mock': PARSER_JSON,
     '.mock.yml': PARSER_YAML,
+    '.mock.yaml': PARSER_YAML,
     '.mock.json': PARSER_JSON
 };
 
