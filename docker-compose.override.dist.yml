@@ -18,4 +18,4 @@ services:
     volumes:
       - "./app:/usr/src/app"
     ports:
-      - "8058:8058"
+      - "8086:8086"

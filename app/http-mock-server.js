@@ -5,6 +5,7 @@ const Velocity = require('velocityjs');
 const sleep = require('sleep');
 const pathToRegexp = require('path-to-regexp');
 const path = require('path');
+const mime = require('mime');
 
 class HttpMockServer {
     constructor(app) {
@@ -169,7 +170,18 @@ class HttpMockServer {
             return endpointResponse.body;
         }
 
-        return fs.readFileSync(path.resolve(endpoint.currentDirectory, endpointResponse.bodyFile), 'utf8');
+        const imageMimeTypes = [
+            'image/gif',
+            'image/jpeg',
+            'image/pjpeg',
+            'image/x-png',
+            'image/png',
+            'image/svg+xml'
+        ];
+
+        const bodyFilePath = path.resolve(endpoint.currentDirectory, endpointResponse.bodyFile);
+
+        return fs.readFileSync(bodyFilePath, imageMimeTypes.indexOf(mime.getType(bodyFilePath)) === -1 ? 'utf8' : null);
     }
 }
 
