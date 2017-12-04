@@ -23,6 +23,7 @@
     "express": "^4.15.2",
     "fs-readdir-recursive": "^1.0.0",
     "js-yaml": "^3.10.0",
+    "mime": "^2.0.3",
     "node-watch": "^0.5.5",
     "path": "^0.12.7",
     "path-to-regexp": "^2.1.0",

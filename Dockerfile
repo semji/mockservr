@@ -12,6 +12,7 @@ RUN cd /usr/src/app && \
 
 RUN cd /usr/src/app/gui && \
     npm install && \
+    npm rebuild node-sass --force && \
     npm run build-app
 
 RUN apk del .gyp
