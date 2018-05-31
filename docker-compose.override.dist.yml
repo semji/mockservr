@@ -10,7 +10,7 @@ services:
       - "8045:4580"
 
   webpack:
-    image: node:8
+    image: node:10-alpine
     environment:
       - "API_URL=http://localhost:8045/api/"
     command: npm run start-dev

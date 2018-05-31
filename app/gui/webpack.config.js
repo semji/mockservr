@@ -1,115 +1,135 @@
 let path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 if (process.env.NODE_ENV === 'development') {
-    scssLoaders = [
-        {loader: "style-loader"},
-        {loader: "css-loader", options: {sourceMap: true}},
-        {loader: "sass-loader", options: {outFile: "app.css", sourceMap: true}}
-    ];
+  scssLoaders = [
+    'style-loader',
+    { loader: 'css-loader', options: { sourceMap: true } },
+    {
+      loader: 'sass-loader',
+      options: { sourceMap: true },
+    },
+  ];
 } else {
-    scssLoaders = ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: [{
-            loader: 'css-loader',
-            options: {minimize: true}
-        },
-            {loader: "sass-loader", options: {outFile: "app.css"}}
-            ]
-    });
+  scssLoaders = [
+    'style-loader',
+    { loader: 'css-loader', options: { minimize: true } },
+    'sass-loader',
+  ];
 }
 
-module.exports = {
-    entry: {
-        app: [
-            './src/app.js',
-            './styles/global.scss'
-        ],
-    },
-    output: {
-        path: path.resolve(__dirname, '../dist'),
-        publicPath: '/dist/',
-        filename: '[name].js',
-        sourceMapFilename: '[name].map'
-    },
-    module: {
-        rules: [
-            {
-                test: /\.vue$/,
-                loader: 'vue-loader',
-                options: {
-                    loaders: {
-                        'css': 'style-loader!css-loader',
-                        'scss': 'vue-style-loader!css-loader!sass-loader',
-                        'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
-                    }
-                }
-            },
-            {
-                test: /\.js$/,
-                loader: 'babel-loader',
-                exclude: /node_modules/
-            },
-            {
-                test: /\.css$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    use: 'css-loader'
-                })
-            },
-            {
-                test: /\.(png|jpg|gif|svg)$/,
-                loader: 'file-loader',
-                options: {
-                    name: '[name].[ext]?[hash]'
-                }
-            },
-            {
-                test: /\.scss$/,
-                use: scssLoaders,
-                exclude: /node_modules/
-            }
-        ]
-    },
-    resolve: {
-        alias: {
-            'vue$': 'vue/dist/vue.esm.js'
-        }
-    },
-    plugins: [
-        new ExtractTextPlugin("app.css"),
+const config = {
+  mode: process.env.NODE_ENV,
+  entry: path.resolve(__dirname, 'src/main.js'),
+  module: {
+    rules: [
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader',
+      },
+      {
+        test: /\.js$/,
+        exclude: file => /node_modules/.test(file) && !/\.vue\.js/.test(file),
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+          },
+        },
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]?[hash]',
+        },
+      },
+      {
+        test: /\.scss$/,
+        use: scssLoaders,
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.css$/,
+        loader: 'style-loader!css-loader',
+      },
     ],
-    devServer: {
-        historyApiFallback: true,
-        noInfo: true
+  },
+  resolve: {
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js'
     },
-    performance: {
-        hints: false
+    extensions: ['*', '.js', '.vue', '.json']
+  },
+  plugins: [
+    new CleanWebpackPlugin([path.resolve(__dirname, '../dist')]),
+    new webpack.NamedModulesPlugin(),
+    new VueLoaderPlugin(),
+  ],
+  output: {
+    path: path.resolve(__dirname, '../'),
+    filename: 'dist/[name].js',
+    sourceMapFilename: 'dist/[name].map',
+    chunkFilename: 'dist/[id].chunk.js',
+    pathinfo: true,
+  },
+  performance: {
+    hints: false,
+  },
+  devServer: {
+    overlay: true,
+    compress: true,
+    historyApiFallback: true,
+    noInfo: true,
+    hot: true,
+    port: 8086,
+    host: '0.0.0.0',
+    contentBase: path.resolve(__dirname, '../'),
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers':
+        'X-Requested-With, content-type, Authorization',
     },
-    devtool: '#eval-source-map'
+  },
 };
 
-if (process.env.NODE_ENV === 'production') {
-    module.exports.devtool = '#source-map';
-    module.exports.plugins = (module.exports.plugins || []).concat([
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: '"production"'
-            },
-            API_URL: '"/api/"'
-        }),
-        new webpack.LoaderOptionsPlugin({
-            minimize: true
-        })
-    ])
+if (process.env.NODE_ENV === 'development') {
+  config.devtool = 'cheap-module-eval-source-map';
+  config.plugins.push(
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: '"developement"',
+      },
+      API_URL: process.env.API_URL
+        ? '"' + process.env.API_URL + '"'
+        : '"http://localhost:8045/api/"',
+    })
+  );
 } else {
-    module.exports.plugins = (module.exports.plugins || []).concat([
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: '"developement"'
-            },
-            API_URL: process.env.API_URL ? '"' + process.env.API_URL + '"' : '"http://localhost:8045/api/"'
-        }),
-    ])
+  config.plugins.push(
+    new UglifyJsPlugin({
+      uglifyOptions: {
+        compress: true,
+        mangle: false,
+        output: {
+          comments: false,
+          ascii_only: true,
+        },
+      },
+    })
+  );
+  config.plugins.push(
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: '"production"',
+      },
+      API_URL: '"/api/"',
+    })
+  );
 }
+
+module.exports = config;
