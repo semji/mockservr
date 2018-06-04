@@ -4,7 +4,7 @@ const colors = require('colors/safe');
 const read = require('fs-readdir-recursive');
 const path = require('path');
 const yaml = require('js-yaml');
-const HttpAppServer = require('./http-app-server');
+const HttpApiServer = require('./http-api-server');
 const HttpMockServer = require('./http-mock-server');
 
 const mocksDirectory = './mocks/';
@@ -25,7 +25,7 @@ class App {
     this.buildEndpoints();
     console.log(LOG_PREFIX + colors.cyan('Compilation ended'));
     console.log(LOG_PREFIX + colors.cyan('Ready to handle connections...'));
-    this.httpAppServer = new HttpAppServer(this);
+    this.httpAppServer = new HttpApiServer(this);
     this.httpMockServer = new HttpMockServer(this);
   }
 

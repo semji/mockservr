@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const httpMockServer = require('./http-mock-server');
 
-class HttpAppServer {
+class HttpApiServer {
   constructor(app) {
     this.app = app;
     this.api = express();
@@ -122,4 +122,4 @@ class HttpAppServer {
   }
 }
 
-module.exports = HttpAppServer;
+module.exports = HttpApiServer;
