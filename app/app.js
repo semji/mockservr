@@ -60,7 +60,10 @@ class App {
             this.parseEndpointConfig(content, parser).map(endpoint => {
               endpoint.currentDirectory = path.dirname(filePath);
 
-              return endpoint;
+              return {
+                ...endpoint,
+                id: HttpMockServer.getNewEndpointId()
+              };
             })
           );
 

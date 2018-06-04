@@ -1,14 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const httpMockServer = require('./http-mock-server');
 
 class HttpAppServer {
   constructor(app) {
     this.app = app;
-    this.app = express();
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.api = express();
+    this.api.use(bodyParser.json());
+    this.api.use(bodyParser.urlencoded({ extended: true }));
 
-    this.app
+    this.api
       .route('/api/endpoints')
       .post((req, res) => {
         if (
@@ -111,13 +112,13 @@ class HttpAppServer {
         res.end();
       });
 
-    this.app.use('/', express.static('.'));
+    this.api.use('/', express.static('.'));
 
-    this.app.route('*').get((req, res) => {
+    this.api.route('*').get((req, res) => {
       res.sendFile(__dirname + '/index.html');
     });
 
-    this.app.listen(4580);
+    this.api.listen(4580);
   }
 }
 

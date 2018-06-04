@@ -7,6 +7,7 @@ const pathToRegexp = require('path-to-regexp');
 const path = require('path');
 const mime = require('mime');
 const { parse } = require('querystring');
+const uniqid = require('./uniqid');
 
 class HttpMockServer {
   constructor(app) {
@@ -291,6 +292,10 @@ class HttpMockServer {
       bodyFilePath,
       imageMimeTypes.indexOf(mime.getType(bodyFilePath)) === -1 ? 'utf8' : null
     );
+  }
+
+  static getNewEndpointId() {
+    return uniqid();
   }
 }
 
