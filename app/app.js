@@ -45,7 +45,7 @@ class App {
   }
 
   buildEndpoints() {
-    this.endpoints = [];
+    this.endpoints = this.endpoints.filter((endpoint) => endpoint.source !== 'file');
 
     read(mocksDirectory)
       .filter(fileName => this.getEndpointFileExtension(fileName) !== undefined)
@@ -62,7 +62,8 @@ class App {
 
               return {
                 ...endpoint,
-                id: HttpMockServer.getNewEndpointId()
+                id: HttpMockServer.getNewEndpointId(),
+                source: 'file'
               };
             })
           );
