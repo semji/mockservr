@@ -60,9 +60,9 @@ const config = {
   },
   resolve: {
     alias: {
-      'vue$': 'vue/dist/vue.esm.js'
+      vue$: 'vue/dist/vue.esm.js',
     },
-    extensions: ['*', '.js', '.vue', '.json']
+    extensions: ['*', '.js', '.vue', '.json'],
   },
   plugins: [
     new CleanWebpackPlugin([path.resolve(__dirname, '../dist')]),
