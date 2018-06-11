@@ -208,8 +208,11 @@ class HttpMockServer {
     let matchBody = true;
 
     if (endpointRequest.body) {
+      if (!request.body) {
+        return false;
+      }
       Object.keys(endpointRequest.body).forEach(key => {
-        if (!request.body[key]) {
+        if (request.body[key] !== 0 && !request.body[key]) {
           matchBody = false;
           return;
         }
