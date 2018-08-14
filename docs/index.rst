@@ -18,4 +18,4 @@ Summary
   :maxdepth: 3
 
   quickstart
-  request_options
+  http_mocking

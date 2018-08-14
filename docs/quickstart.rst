@@ -1,4 +1,4 @@
-.. _quickstart
+.. _quickstart:
 
 ==========
 Quickstart
@@ -17,7 +17,7 @@ The minimum requirements on the host system are:
 
 - Docker >= 18 (https://www.docker.com/)
 
-.. _quickstart_running_with_docker
+.. _quickstart_running_with_docker:
 
 *******************
 Running with docker
@@ -31,7 +31,7 @@ One way of running Mockservr is through Docker.
 
 From now, all defined mocks will be accessible through `http://localhost:8085`.
 
-.. _quickstart_running_with_docker_compose
+.. _quickstart_running_with_docker_compose:
 
 ***************************
 Running with docker-compose
