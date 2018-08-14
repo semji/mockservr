@@ -21,7 +21,7 @@ const mockFileExtensionsParsers = {
 class App {
   constructor() {
     console.log(LOG_PREFIX + colors.cyan('Starting to compile endpoints...'));
-    this.endpoints = [];
+    this.httpEndpoints = [];
     this.buildEndpoints();
     console.log(LOG_PREFIX + colors.cyan('Compilation ended'));
     console.log(LOG_PREFIX + colors.cyan('Ready to handle connections...'));
@@ -45,7 +45,9 @@ class App {
   }
 
   buildEndpoints() {
-    this.endpoints = this.endpoints.filter((endpoint) => endpoint.source !== 'file');
+    this.httpEndpoints = this.httpEndpoints.filter(
+      httpEndpoint => httpEndpoint.source !== 'file'
+    );
 
     read(mocksDirectory)
       .filter(fileName => this.getEndpointFileExtension(fileName) !== undefined)
@@ -56,16 +58,15 @@ class App {
           mockFileExtensionsParsers[this.getEndpointFileExtension(filePath)];
 
         try {
-          this.endpoints = this.endpoints.concat(
-            this.parseEndpointConfig(content, parser).map(endpoint => {
-              endpoint.currentDirectory = path.dirname(filePath);
-
-              return {
-                ...endpoint,
+          this.httpEndpoints = this.httpEndpoints.concat(
+            this.parseEndpointConfig(content, parser).http.map(
+              httpEndpoint => ({
+                ...httpEndpoint,
                 id: HttpMockServer.getNewEndpointId(),
-                source: 'file'
-              };
-            })
+                source: 'file',
+                filePath,
+              })
+            )
           );
 
           console.log(

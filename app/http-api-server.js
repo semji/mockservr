@@ -1,3 +1,4 @@
+const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const httpMockServer = require('./http-mock-server');
@@ -9,50 +10,24 @@ class HttpApiServer {
     this.api.use(bodyParser.json());
     this.api.use(bodyParser.urlencoded({ extended: true }));
 
-    this.api
-      .route('/api/endpoints')
-      .post((req, res) => {
-        let newEndpoint = req.body;
+    this.api.route('/api').get((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.write(
+        JSON.stringify({
+          'http-endpoints': {
+            count: this.app.httpEndpoints.length,
+          },
+        })
+      );
+      res.end();
+    });
 
-        if (!newEndpoint.request) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.write(
-            JSON.stringify({
-              error: 'Endpoint request required',
-            })
-          );
-          res.end();
-          return;
-        }
-
-        if (!newEndpoint.response) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.write(
-            JSON.stringify({
-              error: 'Endpoint response required',
-            })
-          );
-          res.end();
-          return;
-        }
-
-        newEndpoint = {
-          ...newEndpoint,
-          id: httpMockServer.getNewEndpointId(),
-          source: 'user',
-        };
-
-        this.app.endpoints.push(newEndpoint);
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.write(JSON.stringify(newEndpoint));
-        res.end();
-      })
+    this.api.route('/api/http-endpoints')
       .get((req, res) => {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.write(JSON.stringify(this.app.endpoints));
-        res.end();
-      });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.write(JSON.stringify(this.app.httpEndpoints));
+      res.end();
+    });
 
     this.api.use('/', express.static('.'));
 
