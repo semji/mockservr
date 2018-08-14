@@ -3,15 +3,31 @@ const url = require('url');
 const fs = require('fs');
 const Velocity = require('velocityjs');
 const sleep = require('sleep');
-const pathToRegexp = require('path-to-regexp');
 const path = require('path');
 const mime = require('mime');
 const { parse } = require('querystring');
 const uniqid = require('./uniqid');
+const ValidatorsStack = require('./validators/ValidatorsStack');
+const VoterStack = require('./voters/VotersStack');
+const MaxCallVoter = require('./voters/MaxCallVoter');
+const MethodVoter = require('./voters/MethodVoter');
+const PathVoter = require('./voters/PathVoter');
+const HeaderVoter = require('./voters/HeaderVoter');
+const QueryVoter = require('./voters/QueryVoter');
+const BodyVoter = require('./voters/BodyVoter');
 
 class HttpMockServer {
   constructor(app) {
     this.app = app;
+    this.validatorsStack = new ValidatorsStack();
+    this.voterStack = new VoterStack()
+      .addVoter(new MaxCallVoter())
+      .addVoter(new MethodVoter(this.validatorsStack))
+      .addVoter(new PathVoter())
+      .addVoter(new HeaderVoter(this.validatorsStack))
+      .addVoter(new QueryVoter(this.validatorsStack))
+      .addVoter(new BodyVoter(this.validatorsStack));
+
     http
       .createServer((req, res) => {
         let body = null;
@@ -22,66 +38,36 @@ class HttpMockServer {
           body += chunk;
         });
         req.on('end', () => {
-          // build body
           if (body) {
-            if (req.headers['content-type']) {
-              if (
-                req.headers['content-type'] ===
-                'application/x-www-form-urlencoded'
-              ) {
-                req.body = parse(body);
-              } else if (req.headers['content-type'] === 'application/json') {
-                req.body = JSON.parse(body);
-              } else {
-                try {
-                  req.body = JSON.parse(body);
-                } catch (error) {
-                  try {
-                    req.body = parse(body);
-                  } catch (error) {
-                    req.body = body;
-                  }
-                }
-              }
-            } else {
-              req.body = body;
-            }
+            req.body = this.formatReqBody(req, body);
           }
 
           let foundEndpoint = this.findEndpoint(req);
 
           if (foundEndpoint !== null) {
-            if (Array.isArray(foundEndpoint.response)) {
-              let weightResponseIndexes = [];
-              foundEndpoint.response.forEach((responseItem, index) => {
+            let weightResponseIndexes = [];
+            this.prepareEndpointResponses(foundEndpoint.response).forEach(
+              (responseItem, index) => {
                 weightResponseIndexes = weightResponseIndexes.concat(
                   new Array(responseItem.weight || 1).fill(index)
                 );
-              });
-              const randIndex =
-                weightResponseIndexes[
-                  Math.floor(Math.random() * weightResponseIndexes.length)
-                ];
-              if (randIndex !== undefined) {
-                HttpMockServer.writeResponse(
-                  req,
-                  res,
-                  foundEndpoint,
-                  foundEndpoint.response[randIndex]
-                );
               }
-            } else {
+            );
+            const randIndex =
+              weightResponseIndexes[
+                Math.floor(Math.random() * weightResponseIndexes.length)
+              ];
+            if (randIndex !== undefined) {
               HttpMockServer.writeResponse(
                 req,
                 res,
                 foundEndpoint,
-                foundEndpoint.response
+                this.prepareEndpointResponses(foundEndpoint.response)[randIndex]
               );
             }
           } else {
             res.writeHead(404, {});
           }
-
           res.end();
         });
       })
@@ -117,8 +103,7 @@ class HttpMockServer {
             math: Math,
             req: request,
             endpoint: endpoint,
-            context: endpointResponse.velocity.context,
-            params: endpoint.params,
+            context: endpointResponse.velocity.context
           }
         )
       );
@@ -129,147 +114,44 @@ class HttpMockServer {
     }
   }
 
-  static getEndpointPath(endpoint, endpointRequest) {
-    let basePath = endpoint.basePath || '';
-
-    if (basePath !== '') {
-      basePath = '/' + basePath.replace(/^\//, '');
-    }
-
-    return (
-      basePath.replace(/\/$/, '') +
-      '/' +
-      endpointRequest.path.replace(/^\//, '')
-    );
-  }
-
   isRequestMatch(endpoint, endpointRequest, request, endpointParams) {
     endpoint.callCount = endpoint.callCount || 0;
-
-    if (endpoint.maxCalls && endpoint.callCount >= endpoint.maxCalls) {
-      return false;
-    }
-
-    if (endpointRequest.method && request.method !== endpointRequest.method) {
-      return false;
-    }
-
-    let keys = [];
-    const re = pathToRegexp(
-      HttpMockServer.getEndpointPath(endpoint, endpointRequest),
-      keys
+    return this.voterStack.run(
+      endpoint,
+      endpointRequest,
+      request,
+      endpointParams
     );
-    const params = re.exec(request.path);
-
-    if (params === null) {
-      return false;
-    }
-
-    let matchQuery = true;
-
-    if (endpointRequest.query) {
-      Object.keys(endpointRequest.query).forEach(key => {
-        if (!request.query[key]) {
-          matchQuery = false;
-          return;
-        }
-
-        if (!new RegExp(endpointRequest.query[key]).test(request.query[key])) {
-          matchQuery = false;
-        }
-      });
-    }
-
-    if (!matchQuery) {
-      return false;
-    }
-
-    let matchHeader = true;
-
-    if (endpointRequest.headers) {
-      Object.keys(endpointRequest.headers).forEach(key => {
-        if (!request.headers[key]) {
-          matchHeader = false;
-          return;
-        }
-
-        if (
-          !new RegExp(endpointRequest.headers[key]).test(request.headers[key])
-        ) {
-          matchHeader = false;
-        }
-      });
-    }
-
-    if (!matchHeader) {
-      return false;
-    }
-
-    let matchBody = true;
-
-    if (endpointRequest.body) {
-      if (!request.body) {
-        return false;
-      }
-      Object.keys(endpointRequest.body).forEach(key => {
-        if (request.body[key] !== 0 && !request.body[key]) {
-          matchBody = false;
-          return;
-        }
-
-        if (!new RegExp(endpointRequest.body[key]).test(request.body[key])) {
-          matchBody = false;
-        }
-      });
-    }
-
-    if (!matchBody) {
-      return false;
-    }
-
-    keys.forEach((key, index) => {
-      endpointParams[key.name] = params[index + 1];
-    });
-
-    return true;
   }
 
   findEndpoint(request) {
-    let params = {};
+    let matchParams = {};
     const urlParse = url.parse(request.url, true);
     request.path = urlParse.pathname;
     request.query = urlParse.query;
 
-    let foundEndpoint = this.app.endpoints.find(endpoint => {
-      if (Array.isArray(endpoint.request)) {
-        if (
-          endpoint.request.find(endpointRequest => {
-            return this.isRequestMatch(
-              endpoint,
-              endpointRequest,
-              request,
-              params
-            );
-          })
-        ) {
-          return true;
+    let foundEndpoint = this.app.httpEndpoints.find(endpoint => {
+      return this.prepareEndpointRequests(endpoint.request).some(
+        endpointRequest => {
+          return this.isRequestMatch(
+            endpoint,
+            endpointRequest,
+            request,
+            matchParams
+          );
         }
-      } else {
-        if (this.isRequestMatch(endpoint, endpoint.request, request, params)) {
-          return true;
-        }
-      }
+      );
     });
 
     if (!foundEndpoint) {
       return null;
     }
-
     foundEndpoint.callCount++;
-    foundEndpoint = JSON.parse(JSON.stringify(foundEndpoint));
-    foundEndpoint.params = params;
 
-    return foundEndpoint;
+    return {
+      ...foundEndpoint,
+      matchParams,
+    };
   }
 
   static getEndpointBody(endpoint, endpointResponse) {
@@ -287,7 +169,7 @@ class HttpMockServer {
     ];
 
     const bodyFilePath = path.resolve(
-      endpoint.currentDirectory,
+      path.dirname(endpoint.filePath),
       endpointResponse.bodyFile
     );
 
@@ -295,6 +177,65 @@ class HttpMockServer {
       bodyFilePath,
       imageMimeTypes.indexOf(mime.getType(bodyFilePath)) === -1 ? 'utf8' : null
     );
+  }
+
+  prepareEndpointRequests(endpointRequests) {
+    if (typeof endpointRequests === 'string') {
+      return [
+        {
+          path: endpointRequests,
+        },
+      ];
+    }
+
+    if (Array.isArray(endpointRequests)) {
+      return endpointRequests;
+    }
+
+    return [endpointRequests];
+  }
+
+  prepareEndpointResponses(EndpointResponses) {
+    if (typeof EndpointResponses === 'string') {
+      return [
+        {
+          body: EndpointResponses,
+        },
+      ];
+    }
+
+    if (Array.isArray(EndpointResponses)) {
+      return EndpointResponses;
+    }
+
+    return [EndpointResponses];
+  }
+
+  formatReqBody(req, body) {
+    if (body) {
+      if (req.headers['content-type']) {
+        if (
+          req.headers['content-type'] === 'application/x-www-form-urlencoded'
+        ) {
+          return parse(body);
+        }
+
+        if (req.headers['content-type'] === 'application/json') {
+          return JSON.parse(body);
+        }
+
+        try {
+          return JSON.parse(body);
+        } catch (error) {
+          try {
+            return parse(body);
+          } catch (error) {
+            return body;
+          }
+        }
+      }
+    }
+    return body;
   }
 
   static getNewEndpointId() {
