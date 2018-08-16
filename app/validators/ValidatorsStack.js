@@ -1,6 +1,7 @@
 const ScalarValidator = require('./ScalarValidator');
 const AnyOfValidator = require('./AnyOfValidator');
 const RegexValidator = require('./RegexValidator');
+const TypeOfValidator = require('./TypeOfValidator');
 const RangeValidator = require('./RangeValidator');
 const ObjectValidator = require('./ObjectValidator');
 const FallbackValidator = require('./FallbackValidator');
@@ -11,10 +12,10 @@ module.exports = class ValidatorsStack {
       new ScalarValidator(),
       new AnyOfValidator(this),
       new RegexValidator(),
+      new TypeOfValidator(this),
       new RangeValidator(),
       new ObjectValidator(this),
       new FallbackValidator(this),
-
     ];
   }
 
@@ -59,7 +60,6 @@ module.exports = class ValidatorsStack {
 
   validate(expected, value) {
     expected = this.prepareExpected(expected);
-
     const validator = this.validators.find(validator => {
       return validator.supportsValidation(expected.type);
     });
