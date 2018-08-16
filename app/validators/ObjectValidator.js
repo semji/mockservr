@@ -11,12 +11,24 @@ module.exports = class ObjectValidator extends BaseValidator {
   }
 
   validate(expected, value) {
-    return !Object.keys(expected).some(key => {
+    let matches = {};
+
+    if (expected === null) {
+      return value === null;
+    }
+
+    for (let key of Object.keys(expected)) {
       if (value[key] === undefined) {
-        return true;
+        return false;
       }
 
-      return !this.validatorsStack.validate(expected[key], value[key]);
-    });
+      matches[key] = this.validatorsStack.validate(expected[key], value[key]);
+
+      if (matches[key] === false) {
+        return false;
+      }
+    }
+
+    return matches;
   }
 };

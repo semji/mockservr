@@ -41,6 +41,13 @@ module.exports = class ValidatorsStack {
       };
     }
 
+    if (expected === null) {
+      return {
+        type: 'object',
+        value: null,
+      };
+    }
+
     if (Array.isArray(expected)) {
       return {
         type: 'anyOf',
@@ -48,7 +55,10 @@ module.exports = class ValidatorsStack {
       };
     }
 
-    if (typeof expected === 'object' && (!expected.type || !expected.value)) {
+    if (
+      typeof expected === 'object' &&
+      (expected.type === undefined || expected.value === undefined)
+    ) {
       return {
         type: 'object',
         value: expected,
