@@ -4,7 +4,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "start-dev": "nodemon --ignore 'mocks/*.json' ./*.js"
+    "start-dev": "nodemon --ignore 'mocks/*.json' ./*.js",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -31,5 +32,8 @@
   "prettier": {
     "singleQuote": true,
     "trailingComma": "es5"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
   }
 }
