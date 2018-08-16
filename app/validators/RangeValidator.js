@@ -6,6 +6,6 @@ module.exports = class RangeValidator extends BaseValidator {
   }
 
   validate(expected, value) {
-    return (expected.min <= value && expect.max >= value);
+    return expected.min <= value && expect.max >= value;
   }
 };

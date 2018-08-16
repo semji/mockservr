@@ -11,7 +11,7 @@ module.exports = class AnyOfValidator extends BaseValidator {
   }
 
   validate(expected, value) {
-    return expected.some((expectedValue) => {
+    return expected.some(expectedValue => {
       return this.validatorsStack.validate(expectedValue, value);
     });
   }
