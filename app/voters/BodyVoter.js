@@ -11,20 +11,11 @@ module.exports = class QueryVoter extends BaseVoter {
       return true;
     }
 
-    return !Object.keys(endpointRequest.body).some(key => {
-      if (request.body[key] === undefined) {
-        return true;
-      }
+    matchParams.body = this.validatorsStack.validate(
+      endpointRequest.body,
+      request.body
+    );
 
-      matchParams.body[key] = request.body[key];
-
-      return (
-        false ===
-        this.validatorsStack.validate(
-          endpointRequest.body[key],
-          request.body[key]
-        )
-      );
-    });
+    return matchParams.body !== false;
   }
 };

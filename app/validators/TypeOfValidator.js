@@ -1,18 +1,16 @@
 const BaseValidator = require('./BaseValidator');
 
-module.exports = class AnyOfValidator extends BaseValidator {
+module.exports = class TypeOfValidator extends BaseValidator {
   constructor(validatorsStack) {
     super();
     this.validatorsStack = validatorsStack;
   }
 
   supportsValidation(type) {
-    return type === 'anyOf';
+    return type === 'typeOf';
   }
 
   validate(expected, value) {
-    return expected.some(expectedValue => {
-      return this.validatorsStack.validate(expectedValue, value);
-    });
+    return this.validatorsStack.validate(expected, typeof value);
   }
 };
