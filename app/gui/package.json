@@ -1,12 +1,8 @@
 {
   "name": "mockservr-gui",
   "description": "",
-  "scripts": {
-    "start-dev": "NODE_ENV=development webpack-dev-server --hot",
-    "build-app": "NODE_ENV=production webpack --progress --hide-modules"
-  },
-  "dependencies": {
-  },
+  "scripts": {},
+  "dependencies": {},
   "prettier": {
     "singleQuote": true,
     "trailingComma": "es5"
