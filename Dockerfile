@@ -8,11 +8,10 @@ RUN apk add --no-cache --virtual .gyp \
         g++
 
 RUN cd /usr/src/app && \
-    npm install
+    npm install --production
 
 RUN cd /usr/src/app/gui && \
-    npm install && \
-    npm run build-app
+    npm install --production
 
 RUN apk del .gyp
 
