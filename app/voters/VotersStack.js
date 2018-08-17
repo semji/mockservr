@@ -11,9 +11,19 @@ module.exports = class VotersStack {
     return this;
   }
 
-  run(endpoint, endpointRequest, request, matchParams) {
-    return !this.voters.some(voter => {
-      return !voter.vote(endpoint, endpointRequest, request, matchParams);
-    });
+  run(endpoint, endpointRequest, request) {
+    let matchParams = {};
+
+    return this.voters.some(voter => {
+      matchParams = voter.vote({
+        endpoint,
+        endpointRequest,
+        request,
+        matchParams,
+      });
+      return matchParams === false;
+    })
+      ? false
+      : matchParams;
   }
 };

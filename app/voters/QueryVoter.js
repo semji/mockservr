@@ -6,12 +6,14 @@ module.exports = class QueryVoter extends BaseVoter {
     this.validatorsStack = validatorsStack;
   }
 
-  vote(endpoint, endpointRequest, request, matchParams) {
+  vote({ endpointRequest, request, matchParams }) {
     if (endpointRequest.query === undefined) {
-      return true;
+      return {...matchParams};
     }
 
-    return !Object.keys(endpointRequest.query).some(key => {
+    let queryMatchParams = {};
+
+    return Object.keys(endpointRequest.query).some(key => {
       if (request.query[key] === undefined) {
         return true;
       }
@@ -25,6 +27,11 @@ module.exports = class QueryVoter extends BaseVoter {
           request.query[key]
         )
       );
-    });
+    })
+      ? false
+      : {
+          ...matchParams,
+          query: queryMatchParams,
+        };
   }
 };

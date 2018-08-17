@@ -16,7 +16,7 @@ module.exports = class PathVoter extends BaseVoter {
     );
   }
 
-  vote(endpoint, endpointRequest, request, matchParams) {
+  vote({ endpoint, endpointRequest, request, matchParams }) {
     let keys = [];
     const re = pathToRegexp(
       PathVoter.getEndpointPath(endpoint, endpointRequest),
@@ -29,12 +29,15 @@ module.exports = class PathVoter extends BaseVoter {
       return false;
     }
 
-    matchParams.path = [];
+    let pathMatchParams = [];
 
     keys.forEach((key, index) => {
-      matchParams.path[key.name] = params[index + 1];
+      pathMatchParams[key.name] = params[index + 1];
     });
 
-    return true;
+    return {
+      ...matchParams,
+      path: pathMatchParams,
+    };
   }
 };

@@ -6,16 +6,21 @@ module.exports = class QueryVoter extends BaseVoter {
     this.validatorsStack = validatorsStack;
   }
 
-  vote(endpoint, endpointRequest, request, matchParams) {
+  vote({ endpointRequest, request, matchParams }) {
     if (endpointRequest.body === undefined) {
-      return true;
+      return {...matchParams};
     }
 
-    matchParams.body = this.validatorsStack.validate(
+    let bodyMatchParams = this.validatorsStack.validate(
       endpointRequest.body,
       request.body
     );
 
-    return matchParams.body !== false;
+    return bodyMatchParams === false
+      ? false
+      : {
+          ...matchParams,
+          body: bodyMatchParams,
+        };
   }
 };
