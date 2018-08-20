@@ -19,3 +19,12 @@ services:
             - ./app:/usr/src/app
         ports:
             - "8086:8086"
+
+    storybook:
+        image: node:10-alpine
+        working_dir: /usr/src/storybook
+        volumes:
+            - ./app/gui:/usr/src/storybook:rw,cached
+        command: yarn run storybook
+        ports:
+            - "9001:9001"
