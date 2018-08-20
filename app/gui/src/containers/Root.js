@@ -1,6 +1,9 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import ThemeWrapper from '../components/ThemeWrapper';
 
 export default ({ store, children }) => (
-  <Provider store={store}>{children}</Provider>
+  <ThemeWrapper>
+    <Provider store={store}>{children}</Provider>
+  </ThemeWrapper>
 );
