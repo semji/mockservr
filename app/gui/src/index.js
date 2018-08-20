@@ -1,18 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import App from './containers/App';
 import registerServiceWorker from './registerServiceWorker';
+import configureStore from './configureStore';
+import Root from './containers/Root';
 
-const rootEl = document.getElementById('root')
-ReactDOM.render(<App />, document.getElementById('root'));
+const store = configureStore();
+
 registerServiceWorker();
 
-if (module.hot) {
-  module.hot.accept('./App', () => {
-    ReactDOM.render(
-      <App />,
-      rootEl
-    )
-  })
-}
+const render = () => {
+  ReactDOM.render(
+    <Root store={store}>
+      <App />
+    </Root>,
+    document.getElementById('root')
+  );
+};
+
+render();
+
+module.hot && module.hot.accept('./containers/App', render);
