@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Menu } from '../components/Layout/Layout';
-import { MenuItem } from '../components/Layout/Menu';
-import EndpointsIcon from '../components/icons/EndpointsIcon';
-import HistoryIcon from '../components/icons/HistoryIcon';
+import { Menu } from '../../components/Layout/Layout';
+import { MenuItem } from '../../components/Layout/Menu';
+import EndpointsIcon from '../../components/icons/EndpointsIcon';
+import HistoryIcon from '../../components/icons/HistoryIcon';
 
 export default class extends Component {
   render() {

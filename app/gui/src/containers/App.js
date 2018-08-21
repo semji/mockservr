@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Background, Box, Main, Sidebar } from '../components/Layout/Layout';
-import Header from './Header';
-import Menu from './Menu';
+import Header from './Layout/Header';
+import Menu from './Layout/Menu';
 
 export default class extends Component {
   render() {
