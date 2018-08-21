@@ -20,6 +20,8 @@ RUN rm -rf /usr/src/app/gui
 EXPOSE 80
 EXPOSE 4580
 
+VOLUME /usr/src/app/mocks
+
 WORKDIR /usr/src/app
 
 CMD ["node",  "app.js"]
