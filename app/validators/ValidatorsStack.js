@@ -4,7 +4,6 @@ const RegexValidator = require('./RegexValidator');
 const TypeOfValidator = require('./TypeOfValidator');
 const RangeValidator = require('./RangeValidator');
 const ObjectValidator = require('./ObjectValidator');
-const FallbackValidator = require('./FallbackValidator');
 
 module.exports = class ValidatorsStack {
   constructor() {
@@ -15,7 +14,6 @@ module.exports = class ValidatorsStack {
       new TypeOfValidator(this),
       new RangeValidator(),
       new ObjectValidator(this),
-      new FallbackValidator(this),
     ];
   }
 
@@ -70,6 +68,7 @@ module.exports = class ValidatorsStack {
 
   validate(expected, value) {
     expected = this.prepareExpected(expected);
+
     const validator = this.validators.find(validator => {
       return validator.supportsValidation(expected.type);
     });
@@ -78,6 +77,6 @@ module.exports = class ValidatorsStack {
       return validator.validate(expected.value, value);
     }
 
-    throw new new Error('No validator found for type: ' + expected.type)();
+    throw new Error('No validator found for type: ' + expected.type);
   }
 };

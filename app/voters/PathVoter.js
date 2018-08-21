@@ -3,7 +3,7 @@ const BaseVoter = require('./BaseVoter');
 
 module.exports = class PathVoter extends BaseVoter {
   static getEndpointPath(endpoint, endpointRequest) {
-    let basePath = endpoint.basePath || '';
+    let basePath = endpoint ? endpoint.basePath || '' : '';
 
     if (basePath !== '') {
       basePath = '/' + basePath.replace(/^\//, '');
@@ -17,6 +17,10 @@ module.exports = class PathVoter extends BaseVoter {
   }
 
   vote({ endpoint, endpointRequest, request, matchParams }) {
+    if (endpointRequest.path === undefined) {
+      return { ...matchParams };
+    }
+
     let keys = [];
     const re = pathToRegexp(
       PathVoter.getEndpointPath(endpoint, endpointRequest),
@@ -29,7 +33,7 @@ module.exports = class PathVoter extends BaseVoter {
       return false;
     }
 
-    let pathMatchParams = [];
+    let pathMatchParams = {};
 
     keys.forEach((key, index) => {
       pathMatchParams[key.name] = params[index + 1];

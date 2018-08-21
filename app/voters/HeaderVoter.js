@@ -8,7 +8,11 @@ module.exports = class HeaderVoter extends BaseVoter {
 
   vote({ endpointRequest, request, matchParams }) {
     if (endpointRequest.headers === undefined) {
-      return {...matchParams};
+      return { ...matchParams };
+    }
+
+    if (Object.keys(endpointRequest.headers).length === 0) {
+      return Object.keys(request.headers).length === 0;
     }
 
     let headersMatchParams = {};
@@ -18,15 +22,12 @@ module.exports = class HeaderVoter extends BaseVoter {
         return true;
       }
 
-      headersMatchParams[key] = request.headers[key];
-
-      return (
-        false ===
-        this.validatorsStack.validate(
-          endpointRequest.headers[key],
-          request.headers[key]
-        )
+      headersMatchParams[key] = this.validatorsStack.validate(
+        endpointRequest.headers[key],
+        request.headers[key]
       );
+
+      return false === headersMatchParams[key];
     })
       ? false
       : {

@@ -12,6 +12,6 @@ module.exports = class RegexValidator extends BaseValidator {
       return false;
     }
 
-    return [...matches.slice(1)];
+    return matches.slice(1);
   }
 };
