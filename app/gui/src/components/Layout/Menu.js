@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 const ItemIcon = styled(({ icon, ...props }) => icon(props))`
   &&& {
     font-size: 3em;
-    margin-bottom: 5px;
+    margin-bottom: 7px;
   }
 `;
 

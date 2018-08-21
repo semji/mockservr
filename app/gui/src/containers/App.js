@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Background, Box, Main, Sidebar } from '../components/Layout/Layout';
+import { Background, Box } from '../components/Layout/Layout';
 import Header from './Layout/Header';
 import Menu from './Layout/Menu';
+import Endpoints from "./Endpoints/Endpoints";
 
 export default class extends Component {
   render() {
@@ -10,17 +11,7 @@ export default class extends Component {
         <Box>
           <Header />
           <Menu />
-          <Sidebar />
-          <Main>
-            <div className="App">
-              <header className="App-header">
-                <h1 className="App-title">Welcome to React app</h1>
-              </header>
-              <p className="App-intro">
-                To get started, edit <code>src/App.js</code> and save to reload.
-              </p>
-            </div>
-          </Main>
+          <Endpoints />
         </Box>
       </Background>
     );

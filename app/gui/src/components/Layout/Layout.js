@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 
 export const Background = styled.div`
@@ -36,6 +35,7 @@ export const Header = styled.header`
   background: ${props => props.theme.colors.primary};
   padding: 0.6em;
   font-size: 2em;
+  z-index: 0;
 
   &:before {
     display: block;
@@ -46,6 +46,7 @@ export const Header = styled.header`
     height: 100%;
     transform: skewX(-20deg);
     background: ${props => props.theme.colors.transparentWhite};
+    z-index: -1;
   }
 `;
 
@@ -56,6 +57,7 @@ export const Menu = styled.nav`
   justify-content: flex-start;
   align-items: center;
   background: ${props => props.theme.colors.grey};
+  padding: 1em 0;
 `;
 
 export const Sidebar = styled.section`
