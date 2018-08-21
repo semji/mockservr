@@ -12,8 +12,8 @@ export const Background = styled.div`
 export const Box = styled.div`
   overflow: hidden;
   display: grid;
-  grid-template-columns: 5% 10% 1fr;
-  grid-template-rows: 5em 1fr;
+  grid-template-columns: 6em 12em 1fr;
+  grid-template-rows: 4em 1fr;
   grid-template-areas:
     'header header header'
     'menu sidebar main';
@@ -63,9 +63,12 @@ export const Menu = styled.nav`
 export const Sidebar = styled.section`
   grid-area: sidebar;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   overflow: auto;
   background: ${props => props.theme.colors.darkGrey};
+  padding: 1.5em;
 `;
 
 export const Main = styled.main`

@@ -38,6 +38,6 @@ export default styled(props => (
 ))`
   width: 1em;
   fill: currentColor;
-  font-size: 7em;
+  font-size: 6em;
   color: ${props => props.theme.colors.grey};
 `;
