@@ -9,7 +9,7 @@ const { parse } = require('querystring');
 const uniqid = require('./uniqid');
 const ValidatorsStack = require('./validators/ValidatorsStack');
 const VoterStack = require('./voters/VotersStack');
-const MaxCallVoter = require('./voters/MaxCallVoter');
+const MaxCallsVoter = require('./voters/MaxCallsVoter');
 const MethodVoter = require('./voters/MethodVoter');
 const PathVoter = require('./voters/PathVoter');
 const HeaderVoter = require('./voters/HeaderVoter');
@@ -21,7 +21,7 @@ class HttpMockServer {
     this.app = app;
     this.validatorsStack = new ValidatorsStack();
     this.voterStack = new VoterStack()
-      .addVoter(new MaxCallVoter())
+      .addVoter(new MaxCallsVoter())
       .addVoter(new MethodVoter(this.validatorsStack))
       .addVoter(new PathVoter())
       .addVoter(new HeaderVoter(this.validatorsStack))
@@ -114,13 +114,12 @@ class HttpMockServer {
     }
   }
 
-  isRequestMatch(endpoint, endpointRequest, request, endpointParams) {
+  isRequestMatch(endpoint, endpointRequest, request) {
     endpoint.callCount = endpoint.callCount || 0;
     return this.voterStack.run(
       endpoint,
       endpointRequest,
-      request,
-      endpointParams
+      request
     );
   }
 

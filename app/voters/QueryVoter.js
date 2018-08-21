@@ -6,25 +6,33 @@ module.exports = class QueryVoter extends BaseVoter {
     this.validatorsStack = validatorsStack;
   }
 
-  vote(endpoint, endpointRequest, request, matchParams) {
+  vote({ endpointRequest, request, matchParams }) {
     if (endpointRequest.query === undefined) {
-      return true;
+      return { ...matchParams };
     }
 
-    return !Object.keys(endpointRequest.query).some(key => {
+    if (Object.keys(endpointRequest.query).length === 0) {
+      return Object.keys(request.query).length === 0;
+    }
+
+    let queryMatchParams = {};
+
+    return Object.keys(endpointRequest.query).some(key => {
       if (request.query[key] === undefined) {
         return true;
       }
 
-      matchParams.query[key] = request.query[key];
-
-      return (
-        false ===
-        this.validatorsStack.validate(
-          endpointRequest.query[key],
-          request.query[key]
-        )
+      queryMatchParams[key] = this.validatorsStack.validate(
+        endpointRequest.query[key],
+        request.query[key]
       );
-    });
+
+      return false === queryMatchParams[key];
+    })
+      ? false
+      : {
+          ...matchParams,
+          query: queryMatchParams,
+        };
   }
 };
