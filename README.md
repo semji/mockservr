@@ -12,7 +12,7 @@ Mockservr is designed to be as user-friendly as possible, hence it can be integr
 
 ## Docker Container
 
-![docker hub](https://hub.docker.com/public/images/logos/mini-logo.svg) [mockservr/mockservr](https://hub.docker.com/r/mockservr/mockservr/)
+![docker](docs/images/docker-logo.svg) [mockservr/mockservr](https://hub.docker.com/r/mockservr/mockservr/)
 
 ```
 docker pull mockservr/mockservr
