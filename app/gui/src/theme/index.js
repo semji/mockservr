@@ -8,7 +8,7 @@ const theme = {
     darkBlueGrey: '#293031',
     darkGrey: '#2C2E31',
     transparentWhite: 'rgba(255, 255, 255, 0.2)',
-    transparentDark: 'rgba(0, 0, 0, 0.1)',
+    transparentDark: 'rgba(0, 0, 0, 0.2)',
     transparentBlack: 'rgba(0, 0, 0, 0.7)',
     white: 'white',
   },

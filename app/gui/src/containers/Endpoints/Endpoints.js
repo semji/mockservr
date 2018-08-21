@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import { Main, Sidebar } from '../../components/Layout/Layout';
+import Cartridge from '../../components/Endpoint/Cartridge';
+import theme from '../../theme';
 
 export default class extends Component {
   render() {
     return (
       <React.Fragment>
-        <Sidebar />
+        <Sidebar>
+          <Cartridge title="/mocks" number={25} color={theme.colors.green} />
+          <Cartridge title="/internetbs" number={13} color={theme.colors.yellow} />
+        </Sidebar>
         <Main>
           <div className="App">
             <header className="App-header">
