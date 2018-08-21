@@ -7,8 +7,9 @@ const theme = {
     grey: '#3A3C41',
     darkBlueGrey: '#293031',
     darkGrey: '#2C2E31',
-    transparentWhite: 'rgba(0, 0, 0, 0.2)',
-    transparentDark: 'rgba(255, 255, 255, 0.1)',
+    transparentWhite: 'rgba(255, 255, 255, 0.2)',
+    transparentDark: 'rgba(0, 0, 0, 0.1)',
+    transparentBlack: 'rgba(0, 0, 0, 0.7)',
     white: 'white',
   },
   text: {
@@ -16,7 +17,7 @@ const theme = {
   },
 };
 
-theme.colors.primary = theme.colors.blue;
+theme.colors.primary = theme.colors.green;
 theme.colors.background = theme.colors.grey;
 
 export default theme;
