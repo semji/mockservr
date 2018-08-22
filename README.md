@@ -1,4 +1,4 @@
-# Mockservr Quickstart Guide
+![mockservr](https://raw.githubusercontent.com/mockservr/mockservr/master/docs/images/mockservr.png)
 
 ![travis status](https://travis-ci.com/mockservr/mockservr.svg?branch=master) ![Docker Pulls](https://img.shields.io/docker/pulls/mockservr/mockservr.svg?maxAge=604800)
 
@@ -10,26 +10,28 @@ Mockservr is an API mocking system, allowing to configure endpoints, specifying 
 
 Mockservr is designed to be as user-friendly as possible, hence it can be integrated into an existing stack really quickly, immediately providing a way to mock APIs.
 
-## Docker Container
+## Quickstart
 
-![docker](docs/images/docker-logo.svg) [mockservr/mockservr](https://hub.docker.com/r/mockservr/mockservr/)
+### Requirements
+
+* `docker`
+
+### Docker Container
+
+![docker](https://raw.githubusercontent.com/mockservr/mockservr/master/docs/images/docker-logo.png) [mockservr/mockservr](https://hub.docker.com/r/mockservr/mockservr/)
 
 ```
 docker pull mockservr/mockservr
 docker run -p 8080:80 -p 4580:4580 -v /some/mocks:/usr/src/app/mocks -d mockservr/mockservr
 ```
 
-## Requirements
-
-* `docker`
-
-## Mockservr browser
+### Mockservr browser
 
 Mockservr comes with an embedded web based object browser.
 
 Default web browser url : [http://localhost:4580](http://localhost:4580).
 
-## Hello World
+### Hello World
 
 Put sample config mock below in `/some/mock` directory on your host.
 
