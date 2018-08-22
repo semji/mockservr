@@ -1,6 +1,6 @@
 ![mockservr](https://raw.githubusercontent.com/ReputationVIP/mockservr/master/docs/images/mockservr.png)
 
-![travis status](https://travis-ci.com/ReputationVIP/mockservr.svg?branch=master) ![Docker Pulls](https://img.shields.io/docker/pulls/rvip/mockservr.svg?maxAge=604800)
+![travis status](https://travis-ci.com/ReputationVIP/mockservr.svg?branch=master) ![Docker Pulls](https://img.shields.io/docker/pulls/rvip/mockservr.svg?maxAge=3600)
 
 Mockservr is an API mocking system, allowing to configure endpoints, specifying requests details and responses.
 
