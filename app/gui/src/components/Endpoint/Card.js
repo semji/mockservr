@@ -131,7 +131,7 @@ const HeaderContent = styled.div`
     width: 2em;
     height: 100%;
     transform: skew(-20deg);
-    right: -0.5em;
+    right: -0.6em;
     z-index: -1;
   }
 `;
