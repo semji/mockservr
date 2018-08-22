@@ -8,6 +8,7 @@ const theme = {
     purple: '#CCA9F1',
     lightGrey: '#CCCCCC',
     blueGrey: '#4A585B',
+    dark: '#3B4649',
     grey: '#3A3C41',
     darkBlueGrey: '#293031',
     darkGrey: '#2C2E31',

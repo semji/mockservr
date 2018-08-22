@@ -4,6 +4,7 @@ import { Push } from '../Layout/Layout';
 import TrashIcon from '../icons/TrashIcon';
 import PenIcon from '../icons/PenIcon';
 import theme from '../../theme';
+import CallsChart from './CallsChart';
 
 const resolveTagColor = method => {
   switch (method) {
@@ -108,6 +109,8 @@ const Counter = styled(props => (
   color: ${props => props.theme.colors.transparentDark};
   text-transform: uppercase;
   font-size: 0.8em;
+  width: 8em;
+  justify-content: flex-end;
 `;
 
 const HeaderContent = styled.div`
@@ -164,6 +167,7 @@ export default styled(({ method, path, calls, ...props }) => (
       <HeaderContent>
         <Path>{path}</Path>
         <Push />
+        <CallsChart />
         <Counter number={calls} />
       </HeaderContent>
       <Actions>
