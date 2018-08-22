@@ -5,7 +5,7 @@ import Button from '../Button/Button';
 export const Header = styled.div`
   display: flex;
   width: 100%;
-  border-bottom: 1px solid ${props => props.theme.colors.primary};
+  border-bottom: 1px solid ${props => props.theme.colors.darkBlueGrey};
   padding-bottom: 1em;
   justify-content: flex-end;
   margin-bottom: 1em;

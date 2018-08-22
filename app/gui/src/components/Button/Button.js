@@ -10,6 +10,7 @@ export default styled(MuiButton)`
     background: none;
     border: none;
     color: ${props => props.theme.colors.primary};
+    background: ${props => props.theme.colors.darkBlueGrey};
   }
 `;
 
