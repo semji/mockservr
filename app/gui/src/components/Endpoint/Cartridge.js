@@ -43,7 +43,7 @@ const Content = styled.div`
     width: 6em;
     height: 100%;
     transform: skewX(-20deg);
-    background: ${props => props.theme.colors.transparentWhite};
+    background: ${props => props.theme.colors.transparentLight};
     z-index: -1;
   }
 `;
