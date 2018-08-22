@@ -9,7 +9,7 @@ export default styled(MuiButton)`
     text-transform: uppercase;
     background: none;
     border: none;
-    color: ${props => props.theme.colors.primary};
+    color: ${props => props.theme.colors.transparentWhite};
     background: ${props => props.theme.colors.darkBlueGrey};
   }
 `;
