@@ -5,7 +5,7 @@ export const Background = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
-  background: ${props => props.theme.colors.darkGrey};
+  background: ${props => props.theme.colors.darkBlueGrey};
   padding: 50px 150px;
 `;
 
