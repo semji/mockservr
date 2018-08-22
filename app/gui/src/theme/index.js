@@ -1,8 +1,12 @@
 const theme = {
   colors: {
+    red: '#D87A7A',
+    orange: '#E08D6F',
     green: '#8EC5AB',
-    yellow: '#C0C58E',
+    yellow: '#DACE92',
     blue: '#92C3E0',
+    purple: '#CCA9F1',
+    lightGrey: '#CCCCCC',
     blueGrey: '#4A585B',
     grey: '#3A3C41',
     darkBlueGrey: '#293031',

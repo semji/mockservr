@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { Main, Sidebar } from '../../components/Layout/Layout';
 import Cartridge from '../../components/Endpoint/Cartridge';
 import theme from '../../theme';
-import {Header, HeaderButton} from '../../components/Main/Header';
-import PlusIcon from "../../components/icons/PlusIcon";
+import { Header, HeaderButton } from '../../components/Main/Header';
+import PlusIcon from '../../components/icons/PlusIcon';
+import Card from '../../components/Endpoint/Card';
 
 export default class extends Component {
   render() {
@@ -19,16 +20,17 @@ export default class extends Component {
         </Sidebar>
         <Main>
           <Header>
-            <HeaderButton><PlusIcon/> Add an endpoint</HeaderButton>
+            <HeaderButton>
+              <PlusIcon /> Add an endpoint
+            </HeaderButton>
           </Header>
-          <div className="App">
-            <header className="App-header">
-              <h1 className="App-title">Welcome to React app</h1>
-            </header>
-            <p className="App-intro">
-              To get started, edit <code>src/App.js</code> and save to reload.
-            </p>
-          </div>
+          <Card method="get" path="/mocks" calls={37} />
+          <Card method="post" path="/mocks/:id" calls={5} />
+          <Card method="put" path="/mocks/:id" calls={5} />
+          <Card method="patch" path="/mocks/:id" calls={5} />
+          <Card method="option" path="/mocks/:id" calls={5} />
+          <Card method="delete" path="/mocks/:id" calls={5} />
+          <Card method="custom" path="/mocks/:id" calls={5} />
         </Main>
       </React.Fragment>
     );

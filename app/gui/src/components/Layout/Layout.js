@@ -6,7 +6,7 @@ export const Background = styled.div`
   justify-content: center;
   height: 100%;
   background: ${props => props.theme.colors.darkGrey};
-  padding: 50px;
+  padding: 50px 150px;
 `;
 
 export const Box = styled.div`
