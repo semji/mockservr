@@ -74,7 +74,11 @@ export const Sidebar = styled.section`
 export const Main = styled.main`
   grid-area: main;
   display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
   height: 1000px;
+  padding: 1.5em;
 `;
 
 export const Push = styled.div`
