@@ -29,6 +29,7 @@ const Header = styled.div`
   display: flex;
   align-items: flex-start;
   position: relative;
+  box-shadow: 0 5px 5px -4px rgba(0, 0, 0, 0.1);
 `;
 
 const Tag = styled.div`
