@@ -1,6 +1,6 @@
-![mockservr](https://raw.githubusercontent.com/mockservr/mockservr/master/docs/images/mockservr.png)
+![mockservr](https://raw.githubusercontent.com/ReputationVIP/mockservr/master/docs/images/mockservr.png)
 
-![travis status](https://travis-ci.com/mockservr/mockservr.svg?branch=master) ![Docker Pulls](https://img.shields.io/docker/pulls/mockservr/mockservr.svg?maxAge=604800)
+![travis status](https://travis-ci.com/ReputationVIP/mockservr.svg?branch=master) ![Docker Pulls](https://img.shields.io/docker/pulls/rvip/mockservr.svg?maxAge=604800)
 
 Mockservr is an API mocking system, allowing to configure endpoints, specifying requests details and responses.
 
@@ -18,11 +18,11 @@ Mockservr is designed to be as user-friendly as possible, hence it can be integr
 
 ### Docker Container
 
-![docker](https://raw.githubusercontent.com/mockservr/mockservr/master/docs/images/docker-logo.png) [mockservr/mockservr](https://hub.docker.com/r/mockservr/mockservr/)
+![docker](https://raw.githubusercontent.com/ReputationVIP/mockservr/master/docs/images/docker-logo.png) [rvip/mockservr](https://hub.docker.com/r/rvip/mockservr/)
 
 ```
-docker pull mockservr/mockservr
-docker run -p 8080:80 -p 4580:4580 -v /some/mocks:/usr/src/app/mocks -d mockservr/mockservr
+docker pull rvip/mockservr
+docker run -p 8080:80 -p 4580:4580 -v /mocks-directory:/usr/src/app/mocks rvip/mockservr
 ```
 
 ### Mockservr browser
@@ -33,7 +33,7 @@ Default web browser url : [http://localhost:4580](http://localhost:4580).
 
 ### Hello World
 
-Put sample config mock below in `/some/mock` directory on your host.
+Put sample config mock below in `/mocks-directory` on your host.
 
 hello-world.mock.yaml
 ```yaml

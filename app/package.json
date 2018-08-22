@@ -9,12 +9,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mockservr/mockservr.git"
+    "url": "git+https://github.com/ReputationVIP/mockservr.git"
   },
   "bugs": {
-    "url": "https://github.com/mockservr/mockservr/issues"
+    "url": "https://github.com/ReputationVIP/mockservr/issues"
   },
-  "homepage": "https://github.com/mockservr/mockservr#readme",
+  "homepage": "https://github.com/ReputationVIP/mockservr#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
     "colors": "^1.3.0",
