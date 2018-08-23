@@ -1,5 +1,5 @@
 const ValidatorsStack = require('../validators/ValidatorsStack');
-const ScalarValidator = require('../validators/ScalarValidator');
+const EqualValidator = require('../validators/EqualValidator');
 const AnyOfValidator = require('../validators/AnyOfValidator');
 const TypeOfValidator = require('../validators/TypeOfValidator');
 const RangeValidator = require('../validators/RangeValidator');
@@ -13,19 +13,19 @@ describe('Validators', () => {
     describe('#prepareExpected', () => {
       it('should create string validator from string', () => {
         assert.deepStrictEqual(validatorsStack.prepareExpected('test'), {
-          type: 'string',
+          type: 'equal',
           value: 'test',
         });
       });
       it('should create boolean validator from boolean', () => {
         assert.deepStrictEqual(validatorsStack.prepareExpected(true), {
-          type: 'boolean',
+          type: 'equal',
           value: true,
         });
       });
       it('should create number validator from number', () => {
         assert.deepStrictEqual(validatorsStack.prepareExpected(1), {
-          type: 'number',
+          type: 'equal',
           value: 1,
         });
       });
@@ -56,11 +56,11 @@ describe('Validators', () => {
       it('should do nothing if validator', () => {
         assert.deepStrictEqual(
           validatorsStack.prepareExpected({
-            type: 'string',
+            type: 'equal',
             value: 'test',
           }),
           {
-            type: 'string',
+            type: 'equal',
             value: 'test',
           }
         );
@@ -89,47 +89,19 @@ describe('Validators', () => {
       });
     });
   });
-  describe('ScalarValidator', () => {
-    const scalarValidator = new ScalarValidator();
+  describe('EqualValidator', () => {
+    const equalValidator = new EqualValidator();
     describe('#supportsValidation', () => {
-      it('should return true for string', () =>
-        assert.ok(scalarValidator.supportsValidation('string')));
-      it('should return true for number', () =>
-        assert.ok(scalarValidator.supportsValidation('number')));
-      it('should return true for boolean', () =>
-        assert.ok(scalarValidator.supportsValidation('boolean')));
-      it('should return true for array', () =>
-        assert.ok(scalarValidator.supportsValidation('array')));
+      it('should return true for equal', () =>
+        assert.ok(equalValidator.supportsValidation('equal')));
       it('should return false for others', () =>
-        assert.strictEqual(scalarValidator.supportsValidation('anyOf'), false));
+        assert.strictEqual(equalValidator.supportsValidation('anyOf'), false));
     });
     describe('#validate', () => {
       it('should return true if expected equals value', () =>
-        assert.ok(scalarValidator.validate(1, 1)));
+        assert.ok(equalValidator.validate(1, 1)));
       it('should return false if expected not equals value', () => {
-        assert.strictEqual(scalarValidator.validate(1, 2), false);
-      });
-    });
-  });
-  describe('ScalarValidator', () => {
-    const scalarValidator = new ScalarValidator();
-    describe('#supportsValidation', () => {
-      it('should return true for string', () =>
-        assert.ok(scalarValidator.supportsValidation('string')));
-      it('should return true for number', () =>
-        assert.ok(scalarValidator.supportsValidation('number')));
-      it('should return true for boolean', () =>
-        assert.ok(scalarValidator.supportsValidation('boolean')));
-      it('should return true for array', () =>
-        assert.ok(scalarValidator.supportsValidation('array')));
-      it('should return false for others', () =>
-        assert.strictEqual(scalarValidator.supportsValidation('anyOf'), false));
-    });
-    describe('#validate', () => {
-      it('should return true if expected equals value', () =>
-        assert.ok(scalarValidator.validate(1, 1)));
-      it('should return false if expected not equals value', () => {
-        assert.strictEqual(scalarValidator.validate(1, 2), false);
+        assert.strictEqual(equalValidator.validate(1, 2), false);
       });
     });
   });
@@ -146,7 +118,7 @@ describe('Validators', () => {
         assert.ok(anyOfValidator.validate([1, 2, 3], 2)));
       it('should return true if value is in expected validator array', () =>
         assert.ok(
-          anyOfValidator.validate([1, { type: 'number', value: 2 }, 3], 2)
+          anyOfValidator.validate([1, { type: 'equal', value: 2 }, 3], 2)
         ));
       it('should return false if expected is not in value array', () => {
         assert.strictEqual(anyOfValidator.validate([1, 3], 2), false);
@@ -169,7 +141,7 @@ describe('Validators', () => {
         assert.ok(typeOfValidator.validate('number', 2)));
       it('should return true if value type match expected validator', () =>
         assert.ok(
-          typeOfValidator.validate({ type: 'string', value: 'number' }, 2)
+          typeOfValidator.validate({ type: 'equal', value: 'number' }, 2)
         ));
       it('should return false if expected is not in value type', () => {
         assert.strictEqual(typeOfValidator.validate('string', 2), false);
