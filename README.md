@@ -21,7 +21,6 @@ Mockservr is designed to be as user-friendly as possible, hence it can be integr
 ![docker](https://raw.githubusercontent.com/ReputationVIP/mockservr/master/docs/images/docker-logo.png) [rvip/mockservr](https://hub.docker.com/r/rvip/mockservr/)
 
 ```
-docker pull rvip/mockservr
 docker run -p 8080:80 -p 4580:4580 -v /mocks-directory:/usr/src/app/mocks rvip/mockservr
 ```
 
