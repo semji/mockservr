@@ -13,8 +13,6 @@ RUN cd /usr/src/app && \
 RUN cd /usr/src/app/gui && \
     npm install --production
 
-RUN apk del .gyp
-
 RUN rm -rf /usr/src/app/gui
 
 EXPOSE 80
