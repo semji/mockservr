@@ -1,4 +1,4 @@
-const ScalarValidator = require('./ScalarValidator');
+const EqualValidator = require('./EqualValidator');
 const AnyOfValidator = require('./AnyOfValidator');
 const RegexValidator = require('./RegexValidator');
 const TypeOfValidator = require('./TypeOfValidator');
@@ -8,7 +8,7 @@ const ObjectValidator = require('./ObjectValidator');
 module.exports = class ValidatorsStack {
   constructor() {
     this.validators = [
-      new ScalarValidator(),
+      new EqualValidator(),
       new AnyOfValidator(this),
       new RegexValidator(),
       new TypeOfValidator(this),
@@ -18,23 +18,9 @@ module.exports = class ValidatorsStack {
   }
 
   prepareExpected(expected) {
-    if (typeof expected === 'string') {
+    if (typeof expected === 'string' || typeof expected === 'number' || typeof expected === 'boolean') {
       return {
-        type: 'string',
-        value: expected,
-      };
-    }
-
-    if (typeof expected === 'number') {
-      return {
-        type: 'number',
-        value: expected,
-      };
-    }
-
-    if (typeof expected === 'boolean') {
-      return {
-        type: 'boolean',
+        type: 'equal',
         value: expected,
       };
     }
