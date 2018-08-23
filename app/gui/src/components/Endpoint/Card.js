@@ -53,7 +53,7 @@ const Tag = styled.div`
     position: absolute;
     width: 2em;
     height: 100%;
-    transform: skew(-20deg);
+    transform: skew(-15deg);
     right: -0.5em;
     z-index: -1;
   }
@@ -135,7 +135,7 @@ const HeaderContent = styled.div`
     position: absolute;
     width: 2em;
     height: 100%;
-    transform: skew(-20deg);
+    transform: skew(-15deg);
     right: -0.6em;
     z-index: -1;
   }

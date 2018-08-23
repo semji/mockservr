@@ -42,7 +42,7 @@ const Content = styled.div`
     content: '';
     width: 6em;
     height: 100%;
-    transform: skewX(-20deg);
+    transform: skewX(-15deg);
     background: ${props => props.theme.colors.transparentLight};
     z-index: -1;
   }

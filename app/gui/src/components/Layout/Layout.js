@@ -17,7 +17,7 @@ export const Background = styled.div`
     position: absolute;
     width: 50%;
     height: 100%;
-    transform: skew(-20deg);
+    transform: skew(-15deg);
     left: -25%;
     z-index: -1;
   }
@@ -54,11 +54,11 @@ export const Header = styled.header`
   &:before {
     display: block;
     position: absolute;
-    left: -3em;
+    left: -5em;
     content: '';
     width: 6em;
     height: 100%;
-    transform: skewX(-20deg);
+    transform: skewX(-15deg);
     background: ${props => props.theme.colors.transparentLight};
     z-index: -1;
   }
