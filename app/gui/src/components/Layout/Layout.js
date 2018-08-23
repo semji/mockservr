@@ -5,8 +5,22 @@ export const Background = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
-  background: ${props => props.theme.colors.darkBlueGrey};
+  background-color: ${props => props.theme.colors.darkBlueGrey};
   padding: 50px 150px;
+  position: relative;
+  z-index: 0;
+
+  &:after {
+    background: rgba(255, 255, 255, 0.03);
+    content: '';
+    display: block;
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    transform: skew(-20deg);
+    left: -25%;
+    z-index: -1;
+  }
 `;
 
 export const Box = styled.div`

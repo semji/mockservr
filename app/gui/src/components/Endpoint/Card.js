@@ -5,6 +5,7 @@ import TrashIcon from '../icons/TrashIcon';
 import PenIcon from '../icons/PenIcon';
 import theme from '../../theme';
 import CallsChart from './CallsChart';
+import IconButton from '../Button/IconButton';
 
 const resolveTagColor = method => {
   switch (method) {
@@ -143,15 +144,15 @@ const HeaderContent = styled.div`
 const Actions = styled.div`
   display: flex;
   background: ${props => props.theme.colors.darkBlueGrey};
-  padding: 0.5em 1em 0.5em 1.5em;
+  padding: 0.5em 0.5em 0.5em 1.5em;
   height: 2.5em;
   align-self: flex-end;
   align-items: center;
   justify-content: center;
-  color: ${props => props.theme.colors.white};
+  color: ${props => props.theme.colors.transparentWhite};
 
-  & > * {
-    margin-right: 1em;
+  && > * {
+    margin-right: 0.5em;
 
     &:last-child {
       margin-right: 0;
@@ -172,8 +173,12 @@ export default styled(({ method, path, calls, ...props }) => (
         <Counter number={calls} />
       </HeaderContent>
       <Actions>
-        <PenIcon />
-        <TrashIcon />
+        <IconButton>
+          <PenIcon />
+        </IconButton>
+        <IconButton>
+          <TrashIcon />
+        </IconButton>
       </Actions>
     </Header>
   </div>

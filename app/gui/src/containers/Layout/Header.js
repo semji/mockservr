@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Header, Push } from '../../components/Layout/Layout';
 import CogsIcon from '../../components/icons/CogsIcon';
 import Logo from "../../components/Layout/Logo";
+import IconButton from "../../components/Button/IconButton";
 
 export default class extends Component {
   render() {
@@ -9,7 +10,7 @@ export default class extends Component {
       <Header>
         <Logo />
         <Push />
-        <CogsIcon />
+        <IconButton><CogsIcon /></IconButton>
       </Header>
     );
   }
