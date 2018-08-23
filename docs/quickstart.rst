@@ -27,9 +27,9 @@ One way of running Mockservr is through Docker.
 
 .. code-block:: sh
 
-  docker run -dit --name my-mockservr -p 8085:80 -p 4580:4580 -v "$PWD":/usr/src/app/mocks mockservr/mockservr:latest
+  docker run -p 8080:80 -p 4580:4580 -v /mocks-directory:/usr/src/app/mocks rvip/mockservr
 
-From now, all defined mocks will be accessible through `http://localhost:8085`.
+From now, all defined mocks will be accessible through `http://localhost:8088`.
 
 .. _quickstart_running_with_docker_compose:
 
@@ -45,11 +45,11 @@ Assuming your stack runs using docker-compose, Mockservr can be easily integrate
     # ...
 
     mockservr:
-      image: mockservr/mockservr:latest
+      image: rvip/mockservr
       volumes:
-        - ./mocks:/usr/src/app/mocks
+        - ./mocks-directory:/usr/src/app/mocks
       ports:
-        - 8085:80
+        - 8088:80
         - 4580:4580
 
-From now on, all defined mocks will be accessible through `http://localhost:8085`.
+From now on, all defined mocks will be accessible through `http://localhost:8088`.

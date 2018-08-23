@@ -2,23 +2,22 @@
 HTTP Mocking
 ============
 
-Mockservr allows you to mock HTTP endpoints, defined through YAML files. Usin HTTP Mocking, you can easily and
+Mockservr allows you to mock HTTP endpoints, defined through YAML/JSON files. Usin HTTP Mocking, you can easily and
 rapidely mock any HTTP based API.
 
 ********
 Overview
 ********
 
-As for any mock in Mockservr, it must be defined in a YAML file, with the `.mock.yaml` or `mock.yml` file extension.
+As for any mock in Mockservr, it must be defined in a YAML/JSON file, with the `.mock.yaml` or `mock.yml` or `mock.json` file extension.
 
-HTTP endpoints are defined under a single object, named `http`, which can either contain an array of endpoints
-or a single object describing a single endpoint.
+HTTP endpoints are defined under a single object, named `http`, which should contain an array of endpoints.
 
 Accessing the HTTP endpoints
 ============================
 
 Once Mockservr is up and running as described in :ref:`quickstart`, it is possible to access the endpoints through
-your localhost and the port `8085`.
+your localhost and the port `8080`.
 
 .. note::
   The port on which Mockservr can be reached through HTTP can be customized, either by using the `-p` option if running
@@ -28,53 +27,15 @@ your localhost and the port `8085`.
 Defining the HTTP endpoints
 ===========================
 
-There are two ways to define the HTTP endpoints in the mock configuration file.
+There are two ways to define the HTTP endpoints in the Mockservr.
 
-- If your mock aims to contain a single endpoint, the endpoint is described as un object under `http`.
-- If your mock aims to contain many endpoints, the endpoints are described in an array under `htttp`.
+- Describe endpoints in an array under `http` in a YAML/JSON file
+- Use :ref:`API`
 
-Example of single-endpoint mock
--------------------------------
+Example of endpoints mock file
+------------------------------
 
-Using an object under `http` will define a single-endpoint mock:
-
-.. code-block:: yaml
-  :caption: YAML
-
-  http:
-    request:
-      path: '/foo'
-    response:
-      body: 'Hello World!'
-
-.. code-block::  json
-  :caption: JSON
-
-  {
-    "http": {
-      "request": {
-        "path": "/foo"
-      },
-      "response": {
-        "body": "Hello World!"
-      }
-    }
-  }
-
-The endpoint is then accessible through HTTP:
-
-.. code-block:: sh
-
-  curl -XGET 'http://localhost:8085/foo'
-
-.. note::
-  The endpoint defined above is accessible using any HTTP verb. More about defining which HTTP verb to be used in
-  :ref:`http_mocking_method_option`.
-
-Example of multiple endpoints mock
-----------------------------------
-
-Using an array of objects under `http` will define multiple endpoints for the mock:
+Using an array of objects under `http` will define endpoints for the mock:
 
 .. code-block:: yaml
   :caption: YAML
@@ -119,8 +80,8 @@ These endpoints are then accessible through HTTP:
 
 .. code-block:: sh
 
-  curl -XGET 'http://localhost:8085/foo'
-  curl -XGET 'http://localhost:8085/bar'
+  curl -XGET 'http://localhost:8080/foo'
+  curl -XGET 'http://localhost:8080/bar'
 
 *******
 Request
@@ -133,6 +94,9 @@ Request Definition
 ==================
 
 The `http.request` may either be a string, an object or an array.
+
+Mockservr comes with a **inference** feature, which means, if you do not explicitly define full `request` options
+to use, Mockservr will guess it for you.
 
 Basic definition of a Request
 -----------------------------
@@ -164,7 +128,7 @@ The endpoint is then accessible through HTTP:
 
 .. code-block:: sh
 
-  curl -XGET 'http://localhost:8085/foo'
+  curl -XGET 'http://localhost:8080/foo'
 
 .. note::
   This way to define an endpoint is equal to:
@@ -174,7 +138,8 @@ The endpoint is then accessible through HTTP:
 
     http:
       request:
-        path: '/foo'
+        -
+         path: '/foo'
       response:
         body: 'Hello World!'
 
@@ -183,9 +148,11 @@ The endpoint is then accessible through HTTP:
 
     {
       "http": {
-        "request": {
-          "path": "/foo"
-        },
+        "request": [
+          {
+            "path": "/foo"
+          }
+        ],
         "response": {
           "body": "Hello World!"
         }
@@ -231,7 +198,36 @@ The endpoint is then accessible through HTTP:
 
 .. code-block:: sh
 
-  curl -XGET 'http://localhost:8085/foo'
+  curl -XGET 'http://localhost:8080/foo'
+
+.. note::
+  This way to define an endpoint is equal to:
+
+  .. code-block:: yaml
+    :caption: YAML
+
+    http:
+      request:
+        -
+         path: '/foo'
+      response:
+        body: 'Hello World!'
+
+  .. code-block::  json
+    :caption: JSON
+
+    {
+      "http": {
+        "request": [
+          {
+            "path": "/foo"
+          }
+        ],
+        "response": {
+          "body": "Hello World!"
+        }
+      }
+    }
 
 Defining multiple Request
 -------------------------
@@ -274,8 +270,8 @@ The endpoint is then available through different HTTP requests:
 
 .. code-block:: sh
 
-  curl -XGET 'http://localhost:8085/foo'
-  curl -XGET 'http://localhost:8085/bar'
+  curl -XGET 'http://localhost:8080/foo'
+  curl -XGET 'http://localhost:8080/bar'
 
 .. _validator:
 
@@ -293,21 +289,27 @@ To perform this, you may use a Validator ; it is an object with two properties:
 Mockservr comes with a **Validator inference** feature, which means, if you do not explicitly define which Validator
 to use, Mockservr will guess it for you.
 
-`scalar` Validator
+Inference transform rules :
+
+- `string` will be transform in `equal` Validator
+- `number` will be transform in `equal` Validator
+- `boolean` will be transform in `equal` Validator
+- `array` will be transform in `anyOf` Validator
+- `null` will be transform in `object` Validator
+- `object` that is not a validator will be transform in `object` Validator
+
+`equal` Validator
 ------------------
 
-The `scalar` Validator performs an exact match between the expected value and the given one. This Validator
+The `equal` Validator performs an exact match between the expected value and the given one. This Validator
 is automatically inferred when the value is a string, a number or a boolean value.
-
-Some syntactic sugar are also available, to alias the `scalar` Validator and make the definition of the endpoints
-more clear. As such, the types `string`, `number` and `boolean` are all alias to the `scalar` Validator.
 
 Example
 ^^^^^^^
 
-For example, you can use the `scalar` Validator to validate the path. All the following definitions are equals:
+For example, you can use the `equal` Validator to validate the method. All the following definitions are equals:
 
-Using the `scalar` Validator
+Using the `equal` Validator
 """"""""""""""""""""""""""""
 
 .. code-block:: yaml
@@ -315,9 +317,10 @@ Using the `scalar` Validator
 
   http:
     request:
-      path:
-        type: 'scalar'
-        value: '/foo'
+      path: '/foo'
+      method:
+        type: 'equal'
+        value: 'GET'
     response:
       body: 'Hello World!'
 
@@ -327,40 +330,10 @@ Using the `scalar` Validator
   {
     "http": {
       "request": {
-        "path": {
-          "type": "scalar",
-          "value": "/foo"
-        }
-      },
-      "response": {
-        "body": "Hello World!"
-      }
-    }
-  }
-
-Using the `string` Validator
-""""""""""""""""""""""""""""
-
-.. code-block:: yaml
-  :caption: YAML
-
-  http:
-    request:
-      path:
-        type: 'string'
-        value: '/foo'
-    response:
-      body: 'Hello World!'
-
-.. code-block::  json
-  :caption: JSON
-
-  {
-    "http": {
-      "request": {
-        "path": {
-          "type": "string",
-          "value": "/foo"
+        "path": "/foo",
+        "method": {
+          "type": "equal",
+          "value": "GET"
         }
       },
       "response": {
@@ -377,7 +350,8 @@ Using the Validator inference
 
   http:
     request:
-      path: '/foo'
+      path: "/foo"
+      method: "GET"
     response:
       body: 'Hello World!'
 
@@ -387,7 +361,8 @@ Using the Validator inference
   {
     "http": {
       "request": {
-        "path": "/foo"
+        "path": "/foo",
+        "method": "GET",
       },
       "response": {
         "body": "Hello World!"
@@ -423,7 +398,7 @@ An example of the `regex` Validator can be is presented in :ref:`http_mocking_me
 -----------------
 
 The `anyOf` Validator may be used to match one of several given values. Under the hood, Mockservr is performing
-Validator inference ; it allows to use scalar values (string, number, ...) in the array. However, it is possible
+Validator inference ; it allows to use equals values (string, number, ...) in the array. However, it is possible
 to use Validators inside the array, giving you the possibility to use regular expression, for example.
 
 .. code-block:: yaml
@@ -431,14 +406,15 @@ to use Validators inside the array, giving you the possibility to use regular ex
 
   http:
     request:
-      path:
+      path: "/foo"
+      method:
         type: 'anyOf'
         value:
-          - '/foo'
-          - '/bar'
+          - 'GET'
+          - 'POST'
           -
             type: 'regex'
-            value: '/^\/p.*$/'
+            value: '/^P.*$/'
     response:
       body: 'Hello World!'
 
@@ -448,14 +424,15 @@ to use Validators inside the array, giving you the possibility to use regular ex
   {
     "http": {
       "request": {
-        "path": {
+        "path": "/foo",
+        "method": {
           "type": "anyOf",
           "value": [
-            "/foo",
-            "/bar",
+            "GET",
+            "POST",
             {
               "type": "regex",
-              "value": "/^\/p.*$/"
+              "value": "/^P.*$/"
             }
           ]
         }
@@ -470,15 +447,16 @@ The endpoint is then available through different HTTP requests:
 
 .. code-block:: sh
 
-  curl -XGET 'http://localhost:8085/foo'
-  curl -XGET 'http://localhost:8085/bar'
-  curl -XGET 'http://localhost:8085/plop'
+  curl -XGET 'http://localhost:8080/foo'
+  curl -XPOST 'http://localhost:8080/foo'
+  curl -XPUT 'http://localhost:8080/foo'
 
 `object` Validator
 ------------------
 
 The `object` Validator in itself does not perform any validation. Instead, the value is an object, in which one
-or more validators are defined.
+or more validators are defined for each object attribute.
+Validation of `object` Validator will perform recursively.
 
 `typeOf` Validator
 ------------------
@@ -490,7 +468,8 @@ The `typeOf` Validator validates that the given value corresponds to the expecte
 
   http:
     request:
-      path:
+      path: '/foo'
+      method:
         type: 'typeof'
         value: 'string'
     response:
@@ -502,7 +481,8 @@ The `typeOf` Validator validates that the given value corresponds to the expecte
   {
     "http": {
       "request": {
-        "path": {
+        "path": "/foo"
+        "method": {
           "type": "typeof",
           "value": "string"
         }
@@ -513,10 +493,11 @@ The `typeOf` Validator validates that the given value corresponds to the expecte
     }
   }
 
-The example above will match any incoming request, as path is always a string.
+The example above will match any incoming request, as method is always a string.
 
 .. note::
   As Mockservr is using Javascript, running the `typeOf` validator against `null` won't be working as expected.
+  Use `object` Validator with `null` value instead.
 
 Request Options
 ===============
@@ -526,7 +507,7 @@ Request, it must match positively against all options.
 
 The options are defined under the `request` object of an HTTP endpoint.
 
-Each option can be described as a :ref:`validator`, but may also be described as a scalar value, for which Mockservr
+Most option can be described as a :ref:`validator`, but may also be described as a scalar value, for which Mockservr
 will perform validator inference.
 
 Defining multiple sets of options for a single Request
@@ -574,14 +555,52 @@ Then, the two following HTTP requests will lead to the same response:
 
 .. code-block:: sh
 
-  curl -XGET 'http://localhost:8085/foo'
-  curl -XGET 'http://localhost:8085/bar'
+  curl -XGET 'http://localhost:8080/foo'
+  curl -XGET 'http://localhost:8080/bar'
+
+`path` option (required)
+------------------------
+
+The `path` option defines on which path the endpoint can be reached.
+The `path` option matching is powered by path-to-regexp_.
+
+.. _path-to-regexp: https://github.com/pillarjs/path-to-regexp
+
+.. code-block:: yaml
+    :caption: YAML
+
+    http:
+      request:
+        path: '/foo/:id'
+      response:
+        body: 'Hello World!'
+
+.. code-block::  json
+    :caption: JSON
+
+    {
+      "http": {
+        "request": {
+          "path": "/foo/:id",
+        },
+        "response": {
+          "body": "Hello World!"
+        }
+      }
+    }
+
+The example above is an endpoint reachable on the `/foo/[id]` path of Mockservr (typically `http://localhost:8080`)
+
+.. code-block:: sh
+
+  curl -XGET 'http://localhost:8080/foo/1'
 
 `basepath` option
 -----------------
 
 The `basepath` option allows to define the base path of the request. It is mainly useful to group requests by their
 base path in the Mockservr GUI.
+`basepath` will concat with `path` option before matching
 
 .. code-block:: yaml
   :caption: YAML
@@ -589,7 +608,7 @@ base path in the Mockservr GUI.
     http:
       request:
         basepath: '/foo'
-        path: '/1'
+        path: '/:id'
       response:
         body: 'Hello World!'
 
@@ -600,7 +619,7 @@ base path in the Mockservr GUI.
     "http": {
       "request": {
         "basepath": "/foo",
-        "path": "/1"
+        "path": "/:id"
       },
       "response": {
         "body": "Hello World!"
@@ -608,17 +627,19 @@ base path in the Mockservr GUI.
     }
   }
 
+.. code-block:: sh
+
+  curl -XGET 'http://localhost:8080/foo/1'
+
 `body` option
 -------------
 
-The `body` option allows you to define what the incoming HTTP request's body must look like. For it to be working, the
-`Content-Type` header must be defined as `application/x-www-form-urlencoded` or as `application/json`.
+The `body` option allows you to define what the incoming HTTP request's body must look like. For it to be working as an object, the
+`Content-Type` header must be defined as `application/x-www-form-urlencoded` or as `application/json`. If not it will be working as string.
 
-All types of validator may be used with the `body` option.
-
-In case the body is a JSON or a form, it is possible to use an object under `body`. In this case, the keys of the object
-will be used to find the corresponding key in the HTTP request's body, and it will be matched against the value specified
-at the corresponding key.
+All types of :ref:`validator` may be used with the `body` option.
+In case the body is a JSON or a form, it is possible to use an object under `body`.
+If not defined `body` will match any incoming request.
 
 .. code-block:: yaml
   :caption: YAML
@@ -651,10 +672,10 @@ at the corresponding key.
   }
 
 In the above example, the JSON or form body must define two key/value pairs: The first one is `name` and its value
-must be "John" (the `string` validator is automatically inferred) ; the second one is `last_name` and its value must
+must be "John" (the `equal` validator is automatically inferred) ; the second one is `last_name` and its value must
 either be "Doe" or "Bar" (the `anyOf` validator is automatically inferred).
 
-The incoming request's body may also be a simple string or any other scalar.
+The incoming request's body may also be a simple string or any other scalar then the `equal` validator is automatically inferred.
 
 .. code-block:: yaml
     :caption: YAML
@@ -684,10 +705,11 @@ The incoming request's body may also be a simple string or any other scalar.
 `headers` option
 ----------------
 
-The `headers` options allows the control of the incoming HTTP request. This option can only be an object with
+The `headers` options allows the control of the incoming HTTP request. **It must be an object** be an object with
 key/value pairs. The key is the header's name, and the value is the expected value.
 
-The value can be any type of validator, allowing a fine-grain control of the headers.
+The value can be any type of :ref:`validator`, allowing a fine-grain control of the headers.
+If not defined `headers` will match any incoming request.
 
 .. code-block:: yaml
     :caption: YAML
@@ -716,7 +738,7 @@ The value can be any type of validator, allowing a fine-grain control of the hea
   }
 
 In the above example, the endpoint will be triggered in the incoming HTTP request contains a `Content-Type` header
-and if its value is either `application/json` or `application/x-www-form-urlencoded`.
+and if its value is either `application/json` or `application/x-www-form-urlencoded` (the `anyOf` validator is automatically inferred).
 
 `maxCalls` option
 ----------------
@@ -725,6 +747,7 @@ The `maxCalls` option defines a maximum calls count for a given Request. This gi
 rate limits, for example.
 
 The `maxCalls` option does not provide validator inference, as the only possible value is a plain integer.
+If not defined `maxCalls` will match any incoming request.
 
 .. code-block:: yaml
     :caption: YAML
@@ -761,6 +784,8 @@ not match it positively against this Request.
 
 The `method` option defines which type of HTTP requests will match positively with the endpoint. Apart of the usual
 HTTP verbs (GET, POST, ...), it is possible to set custom HTTP verbs.
+All types of :ref:`validator` may be used with the `method` option.
+If not defined `method` will match any incoming request.
 
 .. code-block:: yaml
     :caption: YAML
@@ -787,37 +812,7 @@ HTTP verbs (GET, POST, ...), it is possible to set custom HTTP verbs.
       }
     }
 
-The Request defined above will match positively against any incoming HTTP request which is a GET or a POST request. d
-
-`path` option
--------------
-
-The `path` option defines on which path the endpoint can be reached.
-
-.. code-block:: yaml
-    :caption: YAML
-
-    http:
-      request:
-        path: '/foo'
-      response:
-        body: 'Hello World!'
-
-.. code-block::  json
-    :caption: JSON
-
-    {
-      "http": {
-        "request": {
-          "path": "/foo",
-        },
-        "response": {
-          "body": "Hello World!"
-        }
-      }
-    }
-
-The example above is an endpoint reachable on the `/foo` path of Mockservr (typically `http://localhost:8085`)
+The Request defined above will match positively against any incoming HTTP request which is a GET or a POST request (the `anyOf` validator is automatically inferred).
 
 .. _http_mocking_query_option:
 
@@ -826,6 +821,7 @@ The example above is an endpoint reachable on the `/foo` path of Mockservr (typi
 
 The `query` option defines how the incoming HTTP request's query parameters will be matched. **It must be an object**
 in which each key/value pair correspond to a query parameter/value. The value in each key/value pair is a :ref:`validator`.
+If not defined `query` will match any incoming request.
 
 .. code-block:: yaml
     :caption: YAML
@@ -835,7 +831,9 @@ in which each key/value pair correspond to a query parameter/value. The value in
         path: '/foo'
         query:
           action: 'show'
-          id: 1
+          id:
+            type: 'typeOf'
+            Value: 'number'
       response:
         body: 'Hello World!'
 
@@ -848,7 +846,10 @@ in which each key/value pair correspond to a query parameter/value. The value in
           "path": "/foo",
           "query": {
             "action": "show",
-            "id": 1
+            "id": {
+              "type": "typeOf",
+              "value": "number"
+            }
           }
         },
         "response": {
@@ -857,7 +858,7 @@ in which each key/value pair correspond to a query parameter/value. The value in
       }
     }
 
-To match the above Request, the incoming HTTP request must be of the form `/foo?action=show&id=1`
+To match the above Request, the incoming HTTP request must be of the form `/foo?action=show&id=3`
 
 ********
 Response
@@ -866,7 +867,7 @@ Response
 When Mockservr matches an incoming HTTP request to a Request defined in an endpoint, it will send back a HTTP response.
 The definition of this response lies into the `http.response` object.
 
-It is possible to define several Responses for an endpoint and the way Mockservr should pick the right Response from
+It is possible to define several Responses for an endpoint and the way Mockservr should pick one of Responses from
 the incoming HTTP request.
 
 Response Definition
@@ -877,7 +878,7 @@ request that has been match successfully to the endpoint.
 
 It is also possible to define several possible Responses for a single endpoint. To do so, `http.response` must be an
 array of objects, each object defining a possible Response. In that case, each object must also contains some options
-that will tell Mockservr how to pick the right Response ; otherwise, Mockservr will pick the first Response in the
+that will tell Mockservr how to pick the right Response ; otherwise, Mockservr will pick one of Response in the
 array.
 
 Defining a single Response
@@ -930,10 +931,10 @@ Response randomly, according to their respective weight.
         response:
           -
             body: 'Hello World!'
-            weight: 0.5
+            weight: 1
           -
             body: "Bye World!"
-            weight: 0.5
+            weight: 1
 
 .. code-block::  json
     :caption: JSON
@@ -946,17 +947,17 @@ Response randomly, according to their respective weight.
           "response": [
             {
               "body": "Hello World!",
-              "weight": 0.5
+              "weight": 1
             },
             {
               "body": "Bye World!",
-              weight: 0.5
+              weight: 1
             }
           ]
         }
       }
 
-For the endpoint defined above, Mockservr will pick a random Response ; as both their weights are 0.5, they'll be pick
+For the endpoint defined above, Mockservr will pick a random Response ; as both their weights are 1, they'll be pick
 randomly with equal chances. See :ref:`http_mocking_response_weight_option`
 
 Response Options

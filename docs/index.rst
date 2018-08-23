@@ -5,6 +5,7 @@ Mockservr is an API mocking system, allowing to configure endpoints, specifying 
 responses.
 
 - YAML or JSON endpoint configuration
+- Manage endpoint configuration with API
 - Ability to use Apache Velocity Template files to dynamically adapt responses to requests parameters
 - Available under docker image, see dockerhub to be easily integrated into a development / test stack
 
@@ -19,3 +20,4 @@ Summary
 
   quickstart
   http_mocking
+  API
