@@ -1,21 +1,19 @@
-DOCKER_DEPENDENCY_CONTAINER_COMMAND=docker run --rm -v $$SSH_AUTH_SOCK:/ssh-agent -v $$(pwd)/ssh_config:/etc/ssh/ssh_config --env SSH_AUTH_SOCK=/ssh-agent
-
 npm_install_app:
-	$(DOCKER_DEPENDENCY_CONTAINER_COMMAND) -v $$(pwd)/app:/usr/src/app -w /usr/src/app node:10-alpine npm install || if [ $(STOP_ON_FAILURE) = true ]; then exit 1 ; fi
+	docker-compose run mockservr npm install
 
 npm_install_gui:
-	$(DOCKER_DEPENDENCY_CONTAINER_COMMAND) -v $$(pwd)/app/gui:/usr/src/app -w /usr/src/app node:10-alpine npm install || if [ $(STOP_ON_FAILURE) = true ]; then exit 1 ; fi
+	docker-compose run -w /usr/src/app/gui mockservr npm install
 
 npm_install: npm_install_app npm_install_gui
 
 npm_shell:
-	$(DOCKER_DEPENDENCY_CONTAINER_COMMAND) -it -v $$(pwd)/app:/usr/src/app -w /usr/src/app node:10-alpine sh || if [ $(STOP_ON_FAILURE) = true ]; then exit 1 ; fi
+	docker-compose run mockservr sh
 
 npm_clear_app:
-	$(DOCKER_DEPENDENCY_CONTAINER_COMMAND) -it -v $$(pwd)/app:/usr/src/app -w /usr/src/app node:10-alpine rm -rf node_modules || if [ $(STOP_ON_FAILURE) = true ]; then exit 1 ; fi
+	docker-compose run mockservr rm -rf node_modules
 
 npm_clear_gui:
-	$(DOCKER_DEPENDENCY_CONTAINER_COMMAND) -it -v $$(pwd)/app/gui:/usr/src/app -w /usr/src/app node:10-alpine rm -rf node_modules || if [ $(STOP_ON_FAILURE) = true ]; then exit 1 ; fi
+	docker-compose run -w /usr/src/app/gui mockservr rm -rf node_modules
 
 npm_clear: npm_clear_gui npm_clear_app
 
