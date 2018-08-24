@@ -83,6 +83,138 @@ These endpoints are then accessible through HTTP:
   curl -XGET 'http://localhost:8080/foo'
   curl -XGET 'http://localhost:8080/bar'
 
+.. note::
+    It is possible to define a single endpoint for a mock, by using an object instead of an array under `http`.
+
+********
+Endpoint
+********
+
+An Endpoint is defined as one or more responses that correspond to one or more requests, all of them defined under
+`http`. If `http` is an array, then each element is an Endpoint. If `http` is an object, then the object is the only
+endpoint of the mock.
+
+An Endpoint defines at least a `request` and an `response` property. See
+
+Endpoint Options
+================
+
+`crossOrigin` option
+--------------------
+
+The `crossOrigin` option enables cross origin requests on Mockservr. This value can either be a boolean or an object.
+
+If a boolean is given, it will authorize HTTP `OPTION` requests on the endpoint.
+
+The default response to the `OPTION` method is the following JSON:
+
+.. code-block::  json
+  :caption: JSON
+
+    {
+      "headers": {
+        "access-control-allow-credentials": true,
+        "access-control-allow-headers": "request.headers['access-control-request-headers'] || '*'",
+        "access-control-allow-methods": "GET,HEAD,POST,PUT,DELETE,CONNECT,OPTIONS,TRACE,PATCH",
+        "access-control-allow-origin": "*",
+        "access-control-max-age": 3600
+      },
+      "body": ""
+    }
+
+.. note::
+  The value of `access-control-allow-headers` is either equal to the request's `access-control-request-headers` header
+  if defined or `*` (allowing all headers).
+
+If `crossOrigin` option is an object, it must be a Response object (see `Response`Response_ for more information about
+Response's options). It overrides the default response as defined above.
+
+.. note::
+  All headers defined within the `crossOrigin` options will be present in the response sent by Mockservr to any incoming
+  HTTP request that matches the endpoint. These headers can be overwritten using the `headers`headers_ option of the
+  `response` object.
+
+`maxCalls` option
+----------------
+
+The `maxCalls` option defines a maximum calls count for a given Endpoint. This gives the possibility to simulate API
+rate limits, for example.
+
+The `maxCalls` option does not provide validator inference, as the only possible value is a plain integer.
+
+.. code-block:: yaml
+    :caption: YAML
+
+    http:
+      maxCalls: 5
+      request:
+        path: '/foo'
+      response:
+        body: 'Hello World!'
+
+.. code-block::  json
+  :caption: JSON
+
+  {
+    "http": {
+      "maxCalls": 5
+      "request": {
+        "path": "/foo"
+      },
+      "response": {
+        "body": "Hello World!"
+      }
+    }
+  }
+
+In the above example, the Endpoint is going to be positively matched 5 times. When the 6th call arrives, Mockservr will
+not match it positively against this Endpoint.
+
+`rateLimit` option
+------------------
+
+The `rateLimit` option may either be a plain integer or an object. If a plain integer, it is the maximum number of
+accepted calls on this endpoint within one second. If an object, it must define a `callCount` property which is a plain
+integer defining the number of accepted calls and a `interval` property defining the time window in milliseconds in
+which the `callCount` lies.
+
+.. code-block:: yaml
+    :caption: YAML
+
+    http:
+      rateLimit:
+        callCount: 2
+        interval: 5000
+      request: '/foo'
+      response: 'Hello World!'
+
+.. code-block::  json
+  :caption: JSON
+
+  {
+    "http": {
+      "rateLimit": {
+        "callCount": 2,
+        "interval": 5000
+      },
+      "request": "/foo",
+      "response": "Hello World!"
+    }
+  }
+
+
+`request` option
+----------------
+
+More details about the `request` option are availble in `Request`Request_.
+
+`response` option
+-----------------
+
+More details about the `response` option are available in `Response`Response_.
+
+.. _Request:
+
 *******
 Request
 *******
@@ -740,43 +872,6 @@ If not defined `headers` will match any incoming request.
 In the above example, the endpoint will be triggered in the incoming HTTP request contains a `Content-Type` header
 and if its value is either `application/json` or `application/x-www-form-urlencoded` (the `anyOf` validator is automatically inferred).
 
-`maxCalls` option
-----------------
-
-The `maxCalls` option defines a maximum calls count for a given Request. This gives the possibility to simulate API
-rate limits, for example.
-
-The `maxCalls` option does not provide validator inference, as the only possible value is a plain integer.
-If not defined `maxCalls` will match any incoming request.
-
-.. code-block:: yaml
-    :caption: YAML
-
-    http:
-      request:
-        path: '/foo'
-        maxCalls: 5
-      response:
-        body: 'Hello World!'
-
-.. code-block::  json
-  :caption: JSON
-
-  {
-    "http": {
-      "request": {
-        "path": "/foo",
-        "headers": 5
-      },
-      "response": {
-        "body": "Hello World!"
-      }
-    }
-  }
-
-In the above example, the Request is going to be positively matched 5 times. When the 6th call arrives, Mockservr will
-not match it positively against this Request.
-
 .. _http_mocking_method_option:
 
 `method` option
@@ -859,6 +954,8 @@ If not defined `query` will match any incoming request.
     }
 
 To match the above Request, the incoming HTTP request must be of the form `/foo?action=show&id=3`
+
+.. _Response:
 
 ********
 Response
@@ -965,6 +1062,264 @@ Response Options
 
 .. _http_mocking_response_weight_option:
 
+Response options let you specify what content Mockservr will send as a response to a matching incoming HTTP request.
+
+`body` option
+-------------
+
+The `body` option lets you specify the body of the response. It must be a string.
+
+.. code-block:: yaml
+    :caption: YAML
+
+      http:
+        request:
+          path: '/foo'
+        response:
+          body: 'Hello World!'
+
+.. code-block::  json
+    :caption: JSON
+
+      {
+        "http": {
+          "request": {
+            "path": "/foo"
+          },
+          "response": {
+            "body": "Hello World!"
+          }
+        }
+      }
+
+`bodyFile` option
+-----------------
+
+The `bodyFile` option lets you specify the path to a file that contain the response to send. The file may be of any
+type, which lets you define JSON responses, XML responses, pictures, ... The option is the path where to fetch the
+file, relatively to the mock file.
+
+.. code-block:: yaml
+    :caption: YAML
+
+      http:
+        request:
+          path: '/foo'
+        response:
+          bodyFile: './responses/foo/response.json'
+
+.. code-block::  json
+    :caption: JSON
+
+      {
+        "http": {
+          "request": {
+            "path": "/foo"
+          },
+          "response": {
+            "bodyFile": "./responses/foo/response.json"
+          }
+        }
+      }
+
+In the previous examples, the response file must be located in a `responses/foo/` directory from the mock's directory,
+within a `response.json` file.
+
+`delay` option
+--------------
+
+The `delay` option lets you specify a delay (in ms) or a min-max range of delay (in milliseconds) after which the
+response will be sent.
+
+If the given value is a number, it will be considered as a fix delay. You can also specify an object with a `min` and
+a `max` property which will respectively be the minimum and maximum delay time, in milliseconds.
+
+.. code-block:: yaml
+    :caption: YAML
+
+      http:
+        request:
+          path: '/foo'
+        response:
+          body: 'Hello, World!'
+          delay:
+            min: 20
+            max: 500
+
+.. code-block::  json
+    :caption: JSON
+
+      {
+        "http": {
+          "request": {
+            "path": "/foo"
+          },
+          "response": {
+            "body": "Hello, World!",
+            "delay": {
+              "min": 20,
+              "max": 500
+            }
+          }
+        }
+      }
+
+.. _headers:
+
+`headers` option
+----------------
+
+The `headers` option lets you specify the headers sent along with the response. It is an object in which the key/value
+pairs correspond the name/value pairs of the headers.
+
+.. code-block:: yaml
+    :caption: YAML
+
+      http:
+        request:
+          path: '/foo'
+        response:
+          body: 'Hello, World!'
+          headers:
+            Content-Type: 'text/plain'
+
+.. code-block::  json
+    :caption: JSON
+
+      {
+        "http": {
+          "request": {
+            "path": "/foo"
+          },
+          "response": {
+            "body": "Hello, World!",
+            "headers": {
+              "Content-Type": "text/plain"
+            }
+          }
+        }
+      }
+
+`status` option
+---------------
+
+The `status` option lets you define the HTTP status code of the response.
+
+.. code-block:: yaml
+    :caption: YAML
+
+      http:
+        request:
+          path: '/foo'
+        response:
+          body: 'Not found'
+          status: 404
+
+.. code-block::  json
+    :caption: JSON
+
+      {
+        "http": {
+          "request": {
+            "path": "/foo"
+          },
+          "response": {
+            "body": "Not found",
+            "status": 404
+          }
+        }
+      }
+
+`velocity` option
+-----------------
+
+The `velocity` option is an object with an `enabled` value that is a boolean. It tells mockservr if the value specified
+in `response.body` or `response.bodyFile` is an Apache Velocity template file and should be parsed accordingly.
+
+Velocity templates let you access some of the request's parameters (such as query params and form data) and forge a
+tailored response.
+
+.. code-block:: yaml
+    :caption: YAML
+
+      http:
+        request:
+          path: '/foo'
+        response:
+          bodyFile: './responses/foo/response.json'
+          velocity:
+            enabled: true
+
+.. code-block::  json
+    :caption: JSON
+
+      {
+        "http": {
+          "request": {
+            "path": "/foo"
+          },
+          "response": {
+            "bodyFile": "./responses/foo/response.json",
+            "velocity": {
+              "enabled": true
+            }
+          }
+        }
+      }
+
+.. note::
+    Mockservr take advantage of the `VelocityJS`VeloctiyJS_ javascript library, which does not implement all Velocity features.
+    Check out their Github page for more information.
+
+.. _VelocityJS: https://github.com/shepherdwind/velocity.js
+
+.. note::
+    More information about Apache Velocity template files can be foud on `Apache Velocity Documention`__.
+
+.. _ApacheVelocityDoc: http://velocity.apache.org/engine/2.0/user-guide.html
+
+__ ApacheVelocityDoc_
+
 `weight` option
 ---------------
 
+In case you define multiple responses for a single Request, the `weight` option lets you put weights on responses so
+that the random selection of a response will be biased by this weight. Weight are plain numbers.
+
+.. code-block:: yaml
+    :caption: YAML
+
+      http:
+        request:
+          path: '/foo'
+        response:
+          -
+            body: 'Hello World!'
+            weight: 10
+          -
+            body: "Bye World!"
+            weight: 1
+
+.. code-block::  json
+    :caption: JSON
+
+      {
+        "http": {
+          "request": {
+            "path": "/foo"
+          },
+          "response": [
+            {
+              "body": "Hello World!",
+              "weight": 10
+            },
+            {
+              "body": "Bye World!",
+              weight: 1
+            }
+          ]
+        }
+      }
+
+In the previous example, the "Hello World!" response will be sent by Mockservr 10 out of 11 times and the "By World!"
+response 1 out of 11 times.
