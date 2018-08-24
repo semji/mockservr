@@ -4,7 +4,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "start-dev": "nodemon --ignore 'mocks/*.json' ./*.js",
+    "start-dev": "nodemon --ignore 'mocks/*' ./*.js",
     "test": "mocha"
   },
   "repository": {

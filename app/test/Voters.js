@@ -58,6 +58,7 @@ describe('Voters', () => {
       it('should return true when method match validator', () => {
         assert.ok(
           methodVoter.vote({
+            endpoint: {},
             endpointRequest: {
               method: 'POST',
             },
@@ -70,6 +71,20 @@ describe('Voters', () => {
       it('should return true when method not specified', () => {
         assert.ok(
           methodVoter.vote({
+            endpoint: {},
+            endpointRequest: {},
+            request: {
+              method: 'POST',
+            },
+          })
+        );
+      });
+      it('should return true when method is OPTIONS and cross origin is activate', () => {
+        assert.ok(
+          methodVoter.vote({
+            endpoint: {
+              crossOrigin: true,
+            },
             endpointRequest: {},
             request: {
               method: 'POST',
@@ -80,6 +95,7 @@ describe('Voters', () => {
       it("should return false when method doesn't match validator", () => {
         assert.strictEqual(
           methodVoter.vote({
+            endpoint: {},
             endpointRequest: {
               method: 'POST',
             },
@@ -96,6 +112,7 @@ describe('Voters', () => {
             method: ['P', 'T'],
           },
           methodVoter.vote({
+            endpoint: {},
             endpointRequest: {
               method: {
                 type: 'regex',

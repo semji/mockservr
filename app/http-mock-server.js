@@ -8,6 +8,7 @@ const mime = require('mime');
 const { parse } = require('querystring');
 const uniqid = require('./uniqid');
 const ValidatorsStack = require('./validators/ValidatorsStack');
+const AnswererStack = require('./answerers/AnswererStack');
 const VoterStack = require('./voters/VotersStack');
 const MaxCallsVoter = require('./voters/MaxCallsVoter');
 const MethodVoter = require('./voters/MethodVoter');
@@ -20,6 +21,7 @@ class HttpMockServer {
   constructor(app) {
     this.app = app;
     this.validatorsStack = new ValidatorsStack();
+    this.answererStack = new AnswererStack();
     this.voterStack = new VoterStack()
       .addVoter(new MaxCallsVoter())
       .addVoter(new MethodVoter(this.validatorsStack))
@@ -45,26 +47,12 @@ class HttpMockServer {
           let foundEndpoint = this.findEndpoint(req);
 
           if (foundEndpoint !== null) {
-            let weightResponseIndexes = [];
-            this.prepareEndpointResponses(foundEndpoint.response).forEach(
-              (responseItem, index) => {
-                weightResponseIndexes = weightResponseIndexes.concat(
-                  new Array(responseItem.weight || 1).fill(index)
-                );
-              }
+            HttpMockServer.writeResponse(
+              req,
+              res,
+              foundEndpoint,
+              this.answererStack.run(foundEndpoint, req, this.app.httpEndpoints)
             );
-            const randIndex =
-              weightResponseIndexes[
-                Math.floor(Math.random() * weightResponseIndexes.length)
-              ];
-            if (randIndex !== undefined) {
-              HttpMockServer.writeResponse(
-                req,
-                res,
-                foundEndpoint,
-                this.prepareEndpointResponses(foundEndpoint.response)[randIndex]
-              );
-            }
           } else {
             res.writeHead(404, {});
           }
@@ -76,15 +64,16 @@ class HttpMockServer {
 
   static writeResponse(request, response, endpoint, endpointResponse) {
     if (endpointResponse.delay) {
-      if (Array.isArray(endpointResponse.delay)) {
-        if (endpointResponse.delay.length === 2) {
-          sleep.msleep(
-            Math.floor(
-              Math.random() *
-                (endpointResponse.delay[1] - endpointResponse.delay[0])
-            ) + endpointResponse.delay[0]
-          );
-        }
+      if (
+        typeof endpointResponse.delay === 'object' &&
+        endpointResponse.delay !== null
+      ) {
+        const minDelay = endpointResponse.delay.min || 0;
+        const maxDelay = endpointResponse.delay.max || 10000;
+
+        sleep.msleep(
+          Math.floor(Math.random() * (maxDelay - minDelay)) + minDelay
+        );
       } else {
         sleep.msleep(endpointResponse.delay);
       }
@@ -103,7 +92,7 @@ class HttpMockServer {
             math: Math,
             req: request,
             endpoint: endpoint,
-            context: endpointResponse.velocity.context
+            context: endpointResponse.velocity.context,
           }
         )
       );
@@ -116,11 +105,7 @@ class HttpMockServer {
 
   isRequestMatch(endpoint, endpointRequest, request) {
     endpoint.callCount = endpoint.callCount || 0;
-    return this.voterStack.run(
-      endpoint,
-      endpointRequest,
-      request
-    );
+    return this.voterStack.run(endpoint, endpointRequest, request);
   }
 
   findEndpoint(request) {
@@ -192,22 +177,6 @@ class HttpMockServer {
     }
 
     return [endpointRequests];
-  }
-
-  prepareEndpointResponses(EndpointResponses) {
-    if (typeof EndpointResponses === 'string') {
-      return [
-        {
-          body: EndpointResponses,
-        },
-      ];
-    }
-
-    if (Array.isArray(EndpointResponses)) {
-      return EndpointResponses;
-    }
-
-    return [EndpointResponses];
   }
 
   formatReqBody(req, body) {
