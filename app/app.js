@@ -58,15 +58,20 @@ class App {
           mockFileExtensionsParsers[this.getEndpointFileExtension(filePath)];
 
         try {
+          let fileHttpEndpoints = this.parseEndpointConfig(content, parser)
+            .http;
+
+          if (!Array.isArray(fileHttpEndpoints)) {
+            fileHttpEndpoints = [fileHttpEndpoints];
+          }
+
           this.httpEndpoints = this.httpEndpoints.concat(
-            this.parseEndpointConfig(content, parser).http.map(
-              httpEndpoint => ({
-                ...httpEndpoint,
-                id: HttpMockServer.getNewEndpointId(),
-                source: 'file',
-                filePath,
-              })
-            )
+            fileHttpEndpoints.map(httpEndpoint => ({
+              ...httpEndpoint,
+              id: HttpMockServer.getNewEndpointId(),
+              source: 'file',
+              filePath,
+            }))
           );
 
           console.log(
