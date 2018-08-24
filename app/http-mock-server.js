@@ -84,7 +84,15 @@ class HttpMockServer {
       endpointResponse.headers
     );
 
-    if (endpointResponse.velocity && endpointResponse.velocity.enabled) {
+    let velocityOptions = endpointResponse.velocity;
+
+    if (typeof velocityOptions === 'boolean') {
+      velocityOptions = {
+        enabled: velocityOptions,
+      };
+    }
+
+    if (velocityOptions && velocityOptions.enabled) {
       response.write(
         Velocity.render(
           HttpMockServer.getEndpointBody(endpoint, endpointResponse),
@@ -92,7 +100,7 @@ class HttpMockServer {
             math: Math,
             req: request,
             endpoint: endpoint,
-            context: endpointResponse.velocity.context,
+            context: velocityOptions.context,
           }
         )
       );
@@ -103,11 +111,6 @@ class HttpMockServer {
     }
   }
 
-  isRequestMatch(endpoint, endpointRequest, request) {
-    endpoint.callCount = endpoint.callCount || 0;
-    return this.voterStack.run(endpoint, endpointRequest, request);
-  }
-
   findEndpoint(request) {
     let matchParams = {};
     const urlParse = url.parse(request.url, true);
@@ -115,14 +118,11 @@ class HttpMockServer {
     request.query = urlParse.query;
 
     let foundEndpoint = this.app.httpEndpoints.find(endpoint => {
+      endpoint.callCount = endpoint.callCount || 0;
       return this.prepareEndpointRequests(endpoint.request).some(
         endpointRequest => {
-          return this.isRequestMatch(
-            endpoint,
-            endpointRequest,
-            request,
-            matchParams
-          );
+          matchParams = this.voterStack.run(endpoint, endpointRequest, request);
+          return matchParams !== false;
         }
       );
     });
