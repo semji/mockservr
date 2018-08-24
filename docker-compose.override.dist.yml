@@ -4,18 +4,18 @@ services:
   mockservr:
     command: npm run start-dev
     volumes:
-      - "./app:/usr/src/app"
+      - ./app:/usr/src/app
     ports:
       - "8085:80"
       - "8045:4580"
 
   webpack:
-    image: node:10-alpine
+    build: .
     environment:
       - "API_URL=http://localhost:8045/api/"
     command: npm run start-dev
     working_dir: /usr/src/app/gui
     volumes:
-      - "./app:/usr/src/app"
+      - ./app:/usr/src/app
     ports:
       - "8086:8086"

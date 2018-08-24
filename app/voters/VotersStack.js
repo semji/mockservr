@@ -1,5 +1,3 @@
-const BaseVoter = require('./BaseVoter');
-
 module.exports = class VotersStack {
   constructor() {
     this.voters = [];

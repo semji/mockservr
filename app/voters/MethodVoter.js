@@ -6,8 +6,8 @@ module.exports = class MethodVoter extends BaseVoter {
     this.validatorsStack = validatorsStack;
   }
 
-  vote({ endpointRequest, request, matchParams }) {
-    if (endpointRequest.method === undefined) {
+  vote({endpoint, endpointRequest, request, matchParams }) {
+    if (endpointRequest.method === undefined || (endpoint.crossOrigin && request.method === 'OPTIONS')) {
       return {...matchParams};
     }
 
