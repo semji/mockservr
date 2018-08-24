@@ -20,4 +20,5 @@ Summary
 
   quickstart
   http_mocking
+  validators
   API

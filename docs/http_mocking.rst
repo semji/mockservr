@@ -94,7 +94,20 @@ An Endpoint is defined as one or more responses that correspond to one or more r
 `http`. If `http` is an array, then each element is an Endpoint. If `http` is an object, then the object is the only
 endpoint of the mock.
 
-An Endpoint defines at least a `request` and an `response` property. See
+An Endpoint defines at least a `request` and an `response` property.
+
+Mandatory properties
+====================
+
+`request` option
+----------------
+
+More details about the `request` option are availble in :ref:`Request`.
+
+`response` option
+-----------------
+
+More details about the `response` option are available in :ref:`Response`.
 
 Endpoint Options
 ================
@@ -137,10 +150,8 @@ Response's options). It overrides the default response as defined above.
 `maxCalls` option
 ----------------
 
-The `maxCalls` option defines a maximum calls count for a given Endpoint. This gives the possibility to simulate API
-rate limits, for example.
-
-The `maxCalls` option does not provide validator inference, as the only possible value is a plain integer.
+The `maxCalls` option defines a maximum calls count for a given Endpoint. It does not provide validator inference,
+as the only possible value is a plain integer.
 
 .. code-block:: yaml
     :caption: YAML
@@ -202,16 +213,7 @@ which the `callCount` lies.
     }
   }
 
-
-`request` option
-----------------
-
-More details about the `request` option are availble in `Request`Request_.
-
-`response` option
------------------
-
-More details about the `response` option are available in `Response`Response_.
+In the above example, the API has a rate limit of 2 calls every 5 seconds.
 
 .. _Request:
 
@@ -291,17 +293,11 @@ The endpoint is then accessible through HTTP:
       }
     }
 
-.. note::
-  If you intend to use more specific definition of the incoming requests, see
-:ref:`http_mocking_defining_single_request`.
-
-.. _http_mocking_defining_single_request:
-
 Defining a single Request
 -------------------------
 
-If your endpoint must react to single type of Request, then you can use an object to define it. To learn about all
-possible options to define the Request, please see :ref:`http_mocking_request_options`.
+If your endpoint must react to a single type of Request, then you can use an object to define it. To learn about all
+possible options to define the Request, please see `Requests Options`http_mocking_request_options_.
 
 .. code-block:: yaml
   :caption: YAML
@@ -404,232 +400,6 @@ The endpoint is then available through different HTTP requests:
 
   curl -XGET 'http://localhost:8080/foo'
   curl -XGET 'http://localhost:8080/bar'
-
-.. _validator:
-
-Request Validators
-==================
-
-For an incoming HTTP to match a defined Request, it must be positively matched against all the options defined for the
-endpoint in the mock file.
-
-To perform this, you may use a Validator ; it is an object with two properties:
-
-- `type` which defines the type of Validator to use
-- `value` which is the expected value used by the Validator.
-
-Mockservr comes with a **Validator inference** feature, which means, if you do not explicitly define which Validator
-to use, Mockservr will guess it for you.
-
-Inference transform rules :
-
-- `string` will be transform in `equal` Validator
-- `number` will be transform in `equal` Validator
-- `boolean` will be transform in `equal` Validator
-- `array` will be transform in `anyOf` Validator
-- `null` will be transform in `object` Validator
-- `object` that is not a validator will be transform in `object` Validator
-
-`equal` Validator
-------------------
-
-The `equal` Validator performs an exact match between the expected value and the given one. This Validator
-is automatically inferred when the value is a string, a number or a boolean value.
-
-Example
-^^^^^^^
-
-For example, you can use the `equal` Validator to validate the method. All the following definitions are equals:
-
-Using the `equal` Validator
-""""""""""""""""""""""""""""
-
-.. code-block:: yaml
-  :caption: YAML
-
-  http:
-    request:
-      path: '/foo'
-      method:
-        type: 'equal'
-        value: 'GET'
-    response:
-      body: 'Hello World!'
-
-.. code-block::  json
-  :caption: JSON
-
-  {
-    "http": {
-      "request": {
-        "path": "/foo",
-        "method": {
-          "type": "equal",
-          "value": "GET"
-        }
-      },
-      "response": {
-        "body": "Hello World!"
-      }
-    }
-  }
-
-Using the Validator inference
-"""""""""""""""""""""""""""""
-
-.. code-block:: yaml
-  :caption: YAML
-
-  http:
-    request:
-      path: "/foo"
-      method: "GET"
-    response:
-      body: 'Hello World!'
-
-.. code-block::  json
-  :caption: JSON
-
-  {
-    "http": {
-      "request": {
-        "path": "/foo",
-        "method": "GET",
-      },
-      "response": {
-        "body": "Hello World!"
-      }
-    }
-  }
-
-`range` Validator
------------------
-
-The `range` Validator may be used to define a range in which the given value should lie. The `value` is an object
-composed of two entries:
-
-- `min`: The lower bound of the range (inclusive)
-- `max`: The upper bound of the range (inclusive)
-
-Both ranges must be numbers (either integer or floats). An example of the `range` Validator can be is presented in
-:ref:`http_mocking_query_option`.
-
-`regex` Validator
------------------
-
-The `regex` Validator may be used to match a given value against a regular expression. As such, the `value` entry
-is the given regular expression. References about Javascript Regular Expressions can be found on Mozilla_.
-
-.. _Mozilla: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
-
-An example of the `regex` Validator can be is presented in :ref:`http_mocking_method_option`.
-
-.. _http_mocking_request_options:
-
-`anyOf` Validator
------------------
-
-The `anyOf` Validator may be used to match one of several given values. Under the hood, Mockservr is performing
-Validator inference ; it allows to use equals values (string, number, ...) in the array. However, it is possible
-to use Validators inside the array, giving you the possibility to use regular expression, for example.
-
-.. code-block:: yaml
-  :caption: YAML
-
-  http:
-    request:
-      path: "/foo"
-      method:
-        type: 'anyOf'
-        value:
-          - 'GET'
-          - 'POST'
-          -
-            type: 'regex'
-            value: '/^P.*$/'
-    response:
-      body: 'Hello World!'
-
-.. code-block::  json
-  :caption: JSON
-
-  {
-    "http": {
-      "request": {
-        "path": "/foo",
-        "method": {
-          "type": "anyOf",
-          "value": [
-            "GET",
-            "POST",
-            {
-              "type": "regex",
-              "value": "/^P.*$/"
-            }
-          ]
-        }
-      },
-      "response": {
-        "body": "Hello World!"
-      }
-    }
-  }
-
-The endpoint is then available through different HTTP requests:
-
-.. code-block:: sh
-
-  curl -XGET 'http://localhost:8080/foo'
-  curl -XPOST 'http://localhost:8080/foo'
-  curl -XPUT 'http://localhost:8080/foo'
-
-`object` Validator
-------------------
-
-The `object` Validator in itself does not perform any validation. Instead, the value is an object, in which one
-or more validators are defined for each object attribute.
-Validation of `object` Validator will perform recursively.
-
-`typeOf` Validator
-------------------
-
-The `typeOf` Validator validates that the given value corresponds to the expected type.
-
-.. code-block:: yaml
-  :caption: YAML
-
-  http:
-    request:
-      path: '/foo'
-      method:
-        type: 'typeof'
-        value: 'string'
-    response:
-      body: 'Hello World!'
-
-.. code-block::  json
-  :caption: JSON
-
-  {
-    "http": {
-      "request": {
-        "path": "/foo"
-        "method": {
-          "type": "typeof",
-          "value": "string"
-        }
-      },
-      "response": {
-        "body": "Hello World!"
-      }
-    }
-  }
-
-The example above will match any incoming request, as method is always a string.
-
-.. note::
-  As Mockservr is using Javascript, running the `typeOf` validator against `null` won't be working as expected.
-  Use `object` Validator with `null` value instead.
 
 Request Options
 ===============
@@ -840,8 +610,8 @@ The incoming request's body may also be a simple string or any other scalar then
 The `headers` options allows the control of the incoming HTTP request. **It must be an object** be an object with
 key/value pairs. The key is the header's name, and the value is the expected value.
 
-The value can be any type of :ref:`validator`, allowing a fine-grain control of the headers.
-If not defined `headers` will match any incoming request.
+Each object's property value can be any type of :ref:`validator`, allowing a fine-grain control of the headers.
+If not defined `headers`, will match any incoming request.
 
 .. code-block:: yaml
     :caption: YAML
@@ -870,7 +640,8 @@ If not defined `headers` will match any incoming request.
   }
 
 In the above example, the endpoint will be triggered in the incoming HTTP request contains a `Content-Type` header
-and if its value is either `application/json` or `application/x-www-form-urlencoded` (the `anyOf` validator is automatically inferred).
+and if its value is either `application/json` or `application/x-www-form-urlencoded` (the `anyOf` validator is
+automatically inferred).
 
 .. _http_mocking_method_option:
 
@@ -879,8 +650,9 @@ and if its value is either `application/json` or `application/x-www-form-urlenco
 
 The `method` option defines which type of HTTP requests will match positively with the endpoint. Apart of the usual
 HTTP verbs (GET, POST, ...), it is possible to set custom HTTP verbs.
-All types of :ref:`validator` may be used with the `method` option.
-If not defined `method` will match any incoming request.
+
+Each object's property value can be any type of :ref:`validator`, allowing a fine-grain control of the incoming query
+parameters. If not defined, `query` will match any incoming request.
 
 .. code-block:: yaml
     :caption: YAML
@@ -907,7 +679,8 @@ If not defined `method` will match any incoming request.
       }
     }
 
-The Request defined above will match positively against any incoming HTTP request which is a GET or a POST request (the `anyOf` validator is automatically inferred).
+The Request defined above will match positively against any incoming HTTP request which is a GET or a POST request (the
+`anyOf` validator is automatically inferred).
 
 .. _http_mocking_query_option:
 
@@ -915,7 +688,9 @@ The Request defined above will match positively against any incoming HTTP reques
 --------------
 
 The `query` option defines how the incoming HTTP request's query parameters will be matched. **It must be an object**
-in which each key/value pair correspond to a query parameter/value. The value in each key/value pair is a :ref:`validator`.
+in which each key/value pair correspond to a query parameter/value.
+
+The value in each key/value pair is a :ref:`validator`.
 If not defined `query` will match any incoming request.
 
 .. code-block:: yaml
@@ -1055,7 +830,9 @@ Response randomly, according to their respective weight.
       }
 
 For the endpoint defined above, Mockservr will pick a random Response ; as both their weights are 1, they'll be pick
-randomly with equal chances. See :ref:`http_mocking_response_weight_option`
+randomly with equal chances. See http_mocking_response_weight_option_.
+
+.. _http_mocking_request_options:
 
 Response Options
 ================
@@ -1124,6 +901,10 @@ file, relatively to the mock file.
 
 In the previous examples, the response file must be located in a `responses/foo/` directory from the mock's directory,
 within a `response.json` file.
+
+.. note::
+  For pictures, only the following mime types are allowed: `image/gif`, `image/jpeg`, `image/pjpeg`, `image/x-png`,
+  `image/png`, `image/svg+xml`.
 
 `delay` option
 --------------
@@ -1233,8 +1014,12 @@ The `status` option lets you define the HTTP status code of the response.
 `velocity` option
 -----------------
 
-The `velocity` option is an object with an `enabled` value that is a boolean. It tells mockservr if the value specified
+The `velocity` option either a boolean or an object. If a boolean, it tells mockservr if the value specified
 in `response.body` or `response.bodyFile` is an Apache Velocity template file and should be parsed accordingly.
+
+If an object, it may define an `enabled` value which tells mockservr if it should parse the response body as a Apache
+Velocity template file. It may also define a `context` value which is an object. The values in this object will then
+be passed to the Velocity engine and thus be available in the Apache Velcity template file.
 
 Velocity templates let you access some of the request's parameters (such as query params and form data) and forge a
 tailored response.
@@ -1279,6 +1064,13 @@ tailored response.
 .. _ApacheVelocityDoc: http://velocity.apache.org/engine/2.0/user-guide.html
 
 __ ApacheVelocityDoc_
+
+.. note::
+    From within the Apache Velocity template, the following objects are available:
+        - a `math` object which is a Javascript `Math` object
+        - a `req` object which contains all data from the incoming HTTP request
+        - an `endpoint` which is the object representing the matched endpoint from the mock definition file
+        - a `context` which is the optional `velocity.context` object defined above
 
 `weight` option
 ---------------
