@@ -23,7 +23,7 @@ class HttpApiServer {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.write(
         JSON.stringify({
-          'http-endpoints': {
+          'httpEndpoints': {
             count: this.app.httpEndpoints.length,
           },
         })
