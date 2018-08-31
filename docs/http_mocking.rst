@@ -1,3 +1,5 @@
+.. _http_mocking:
+
 ============
 HTTP Mocking
 ============
@@ -214,6 +216,9 @@ which the `callCount` lies.
   }
 
 In the above example, the API has a rate limit of 2 calls every 5 seconds.
+
+.. note::
+    It is possible to add a custom Response in the `html.rateLimit` object.
 
 .. _Request:
 
@@ -1071,6 +1076,9 @@ __ ApacheVelocityDoc_
         - a `req` object which contains all data from the incoming HTTP request
         - an `endpoint` which is the object representing the matched endpoint from the mock definition file
         - a `context` which is the optional `velocity.context` object defined above
+
+    The `endpoint` object contains the parameters that were matched against the incoming HTTP request. It also contains
+    information about how the parameter was matched (e.g: boolean or regex's capturing group).
 
 `weight` option
 ---------------
