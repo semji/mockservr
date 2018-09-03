@@ -119,6 +119,31 @@ Endpoint Options
 
 The `crossOrigin` option enables cross origin requests on Mockservr. This value can either be a boolean or an object.
 
+.. code-block:: yaml
+    :caption: YAML
+
+    http:
+      crossOrigin: true
+      request:
+        path: '/foo'
+      response:
+        body: 'Hello World!'
+
+.. code-block::  json
+  :caption: JSON
+
+  {
+    "http": {
+      "crossOrigin": true
+      "request": {
+        "path": "/foo"
+      },
+      "response": {
+        "body": "Hello World!"
+      }
+    }
+  }
+
 If a boolean is given, it will authorize HTTP `OPTION` requests on the endpoint.
 
 The default response to the `OPTION` method is the following JSON:
@@ -141,12 +166,12 @@ The default response to the `OPTION` method is the following JSON:
   The value of `access-control-allow-headers` is either equal to the request's `access-control-request-headers` header
   if defined or `*` (allowing all headers).
 
-If `crossOrigin` option is an object, it must be a Response object (see `Response`Response_ for more information about
+If `crossOrigin` option is an object, it must be a Response object (see :ref:`Response` for more information about
 Response's options). It overrides the default response as defined above.
 
 .. note::
   All headers defined within the `crossOrigin` options will be present in the response sent by Mockservr to any incoming
-  HTTP request that matches the endpoint. These headers can be overwritten using the `headers`headers_ option of the
+  HTTP request that matches the endpoint. These headers can be overwritten using the headers_ option of the
   `response` object.
 
 `maxCalls` option
@@ -849,7 +874,16 @@ Response options let you specify what content Mockservr will send as a response 
 `body` option
 -------------
 
-The `body` option lets you specify the body of the response. It must be a string.
+The `body` option lets you specify the body of the response. An object is expected but it can be a string.
+
+Body object must have two attributes `type` and `value`.
+`type` must be `plaintext` or `file`.
+The `plaintext` type lets you specify the response to send. The `value` attribute is the response body content.
+The `file` type lets you specify the path to a file that contain the response to send. The file may be of any
+type, which lets you define JSON responses, XML responses, pictures, ... The `value` attribute is the path where to fetch the
+file, relatively to the mock file.
+
+The incoming response body may also be a simple string then a `plaintext` type is automatically inferred.
 
 .. code-block:: yaml
     :caption: YAML
@@ -874,13 +908,6 @@ The `body` option lets you specify the body of the response. It must be a string
         }
       }
 
-`bodyFile` option
------------------
-
-The `bodyFile` option lets you specify the path to a file that contain the response to send. The file may be of any
-type, which lets you define JSON responses, XML responses, pictures, ... The option is the path where to fetch the
-file, relatively to the mock file.
-
 .. code-block:: yaml
     :caption: YAML
 
@@ -888,7 +915,9 @@ file, relatively to the mock file.
         request:
           path: '/foo'
         response:
-          bodyFile: './responses/foo/response.json'
+          body:
+            type: 'plaintext'
+            value: 'Hello World!'
 
 .. code-block::  json
     :caption: JSON
@@ -899,7 +928,40 @@ file, relatively to the mock file.
             "path": "/foo"
           },
           "response": {
-            "bodyFile": "./responses/foo/response.json"
+            "body": {
+              "type": "plaintext",
+              "value": "Hello World!"
+            }
+          }
+        }
+      }
+
+In the previous examples, the response body will be `Hello World!`.
+
+.. code-block:: yaml
+    :caption: YAML
+
+      http:
+        request:
+          path: '/foo'
+        response:
+          body:
+            type: 'file'
+            value: './responses/foo/response.json'
+
+.. code-block::  json
+    :caption: JSON
+
+      {
+        "http": {
+          "request": {
+            "path": "/foo"
+          },
+          "response": {
+            "body": {
+              "type": "file",
+              "value": "./responses/foo/response.json"
+            }
           }
         }
       }
@@ -1058,13 +1120,13 @@ tailored response.
       }
 
 .. note::
-    Mockservr take advantage of the `VelocityJS`VeloctiyJS_ javascript library, which does not implement all Velocity features.
+    Mockservr take advantage of the `VelocityJS`VelocityJS_ javascript library, which does not implement all Velocity features.
     Check out their Github page for more information.
 
 .. _VelocityJS: https://github.com/shepherdwind/velocity.js
 
 .. note::
-    More information about Apache Velocity template files can be foud on `Apache Velocity Documention`__.
+    More information about Apache Velocity template files can be found on `Apache Velocity Documentation`__.
 
 .. _ApacheVelocityDoc: http://velocity.apache.org/engine/2.0/user-guide.html
 

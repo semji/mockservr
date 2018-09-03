@@ -139,32 +139,41 @@ class HttpMockServer {
   }
 
   static getEndpointBody(endpoint, endpointResponse) {
-    if (endpointResponse.body !== undefined) {
-      return endpointResponse.body;
+    let ResponseBody = endpointResponse.body;
+
+    if (typeof ResponseBody === 'string') {
+      ResponseBody = {
+        type: 'plaintext',
+        value: ResponseBody
+      };
     }
 
-    if (endpointResponse.bodyFile === undefined) {
-      return '';
+    if (ResponseBody.type === 'plainText') {
+      return ResponseBody.value;
     }
 
-    const imageMimeTypes = [
-      'image/gif',
-      'image/jpeg',
-      'image/pjpeg',
-      'image/x-png',
-      'image/png',
-      'image/svg+xml',
-    ];
+    if (ResponseBody.type === 'file') {
+      const imageMimeTypes = [
+        'image/gif',
+        'image/jpeg',
+        'image/pjpeg',
+        'image/x-png',
+        'image/png',
+        'image/svg+xml',
+      ];
 
-    const bodyFilePath = path.resolve(
-      path.dirname(endpoint.filePath),
-      endpointResponse.bodyFile
-    );
+      const bodyFilePath = path.resolve(
+        path.dirname(endpoint.filePath),
+        ResponseBody.value
+      );
 
-    return fs.readFileSync(
-      bodyFilePath,
-      imageMimeTypes.indexOf(mime.getType(bodyFilePath)) === -1 ? 'utf8' : null
-    );
+      return fs.readFileSync(
+        bodyFilePath,
+        imageMimeTypes.indexOf(mime.getType(bodyFilePath)) === -1 ? 'utf8' : null
+      );
+    }
+
+    return '';
   }
 
   prepareEndpointRequests(endpointRequests) {
