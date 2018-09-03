@@ -143,6 +143,10 @@ class HttpMockServer {
       return endpointResponse.body;
     }
 
+    if (endpointResponse.bodyFile === undefined) {
+      return '';
+    }
+
     const imageMimeTypes = [
       'image/gif',
       'image/jpeg',

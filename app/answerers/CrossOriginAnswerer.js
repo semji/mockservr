@@ -10,7 +10,6 @@ module.exports = class CrossOriginAnswerer extends BaseAnswerer {
         'access-control-allow-origin': '*',
         'access-control-max-age': '3600',
       },
-      body: '',
     };
   }
 
