@@ -36,7 +36,8 @@ module.exports = class PathVoter extends BaseVoter {
     let pathMatchParams = {};
 
     keys.forEach((key, index) => {
-      pathMatchParams[key.name] = params[index + 1];
+      pathMatchParams[key.name] = decodeURIComponent(params[index + 1]);
+      console.log(pathMatchParams[key.name] );
     });
 
     return {
