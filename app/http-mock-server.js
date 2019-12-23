@@ -1,7 +1,6 @@
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
-const Velocity = require('velocityjs');
 const sleep = require('sleep');
 const path = require('path');
 const mime = require('mime');
@@ -10,6 +9,7 @@ const uniqid = require('./uniqid');
 const ValidatorsStack = require('./validators/ValidatorsStack');
 const AnswererStack = require('./answerers/AnswererStack');
 const VoterStack = require('./voters/VotersStack');
+const TemplateEngineStack = require('./templating/TemplateEnginesStack');
 const MaxCallsVoter = require('./voters/MaxCallsVoter');
 const MethodVoter = require('./voters/MethodVoter');
 const PathVoter = require('./voters/PathVoter');
@@ -22,6 +22,7 @@ class HttpMockServer {
     this.app = app;
     this.validatorsStack = new ValidatorsStack();
     this.answererStack = new AnswererStack();
+    this.templateEngineStack = new TemplateEngineStack();
     this.voterStack = new VoterStack()
       .addVoter(new MaxCallsVoter())
       .addVoter(new MethodVoter(this.validatorsStack))
@@ -47,7 +48,7 @@ class HttpMockServer {
           let foundEndpoint = this.findEndpoint(req);
 
           if (foundEndpoint !== null) {
-            HttpMockServer.writeResponse(
+            this.writeResponse(
               req,
               res,
               foundEndpoint,
@@ -62,11 +63,10 @@ class HttpMockServer {
       .listen(80);
   }
 
-  static writeResponse(request, response, endpoint, endpointResponse) {
+  writeResponse(request, response, endpoint, endpointResponse) {
     if (endpointResponse.delay) {
       if (
-        typeof endpointResponse.delay === 'object' &&
-        endpointResponse.delay !== null
+        typeof endpointResponse.delay === 'object'
       ) {
         const minDelay = endpointResponse.delay.min || 0;
         const maxDelay = endpointResponse.delay.max || 10000;
@@ -79,35 +79,29 @@ class HttpMockServer {
       }
     }
 
-    response.writeHead(
-      endpointResponse.status || 200,
-      endpointResponse.headers
-    );
+    try {
+      const endpointResponseBody = HttpMockServer.getEndpointBody(endpoint, endpointResponse);
+      let ResponseBody = '';
 
-    let velocityOptions = endpointResponse.velocity;
+      if (endpointResponseBody.type === 'plainText') {
+        ResponseBody = endpointResponseBody.value;
+      } else {
+        ResponseBody = this.templateEngineStack.run({
+          endpoint,
+          endpointResponse,
+          request,
+          body: endpointResponseBody.value,
+          bodyFilePath: endpointResponseBody.path
+        });
+      }
 
-    if (typeof velocityOptions === 'boolean') {
-      velocityOptions = {
-        enabled: velocityOptions,
-      };
-    }
-
-    if (velocityOptions && velocityOptions.enabled) {
-      response.write(
-        Velocity.render(
-          HttpMockServer.getEndpointBody(endpoint, endpointResponse),
-          {
-            math: Math,
-            req: request,
-            endpoint: endpoint,
-            context: velocityOptions.context,
-          }
-        )
+      response.writeHead(
+        endpointResponse.status || 200,
+        endpointResponse.headers
       );
-    } else {
-      response.write(
-        HttpMockServer.getEndpointBody(endpoint, endpointResponse)
-      );
+      response.write(ResponseBody);
+    } catch (e) {
+      console.log(e);
     }
   }
 
@@ -139,17 +133,17 @@ class HttpMockServer {
   }
 
   static getEndpointBody(endpoint, endpointResponse) {
-    let ResponseBody = endpointResponse.body;
+    let ResponseBody = JSON.parse(JSON.stringify(endpointResponse.body));
 
     if (typeof ResponseBody === 'string') {
       ResponseBody = {
         type: 'plaintext',
-        value: ResponseBody
+        value: ResponseBody,
       };
     }
 
     if (ResponseBody.type === 'plainText') {
-      return ResponseBody.value;
+      return ResponseBody;
     }
 
     if (ResponseBody.type === 'file') {
@@ -167,10 +161,16 @@ class HttpMockServer {
         ResponseBody.value
       );
 
-      return fs.readFileSync(
+      ResponseBody.path = bodyFilePath;
+
+      ResponseBody.value = fs.readFileSync(
         bodyFilePath,
-        imageMimeTypes.indexOf(mime.getType(bodyFilePath)) === -1 ? 'utf8' : null
+        imageMimeTypes.indexOf(mime.getType(bodyFilePath)) === -1
+          ? 'utf8'
+          : null
       );
+
+      return ResponseBody;
     }
 
     return '';

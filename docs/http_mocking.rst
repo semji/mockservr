@@ -1081,12 +1081,24 @@ The `status` option lets you define the HTTP status code of the response.
 `velocity` option
 -----------------
 
-The `velocity` option either a boolean or an object. If a boolean, it tells mockservr if the value specified
-in `response.body` or `response.bodyFile` is an Apache Velocity template file and should be parsed accordingly.
+Deprecated see :ref:`Template`.
 
-If an object, it may define an `enabled` value which tells mockservr if it should parse the response body as a Apache
-Velocity template file. It may also define a `context` value which is an object. The values in this object will then
-be passed to the Velocity engine and thus be available in the Apache Velcity template file.
+`template` option
+-----------------
+
+.. _Template:
+
+The `template` option either a boolean or an object. If a boolean, it tells mockservr if the value specified
+in `response.body` or `response.bodyFile` is an template file and should be parsed by the default template engine.
+
+If an object, it may define an `enabled` value which tells mockservr if it should parse the response body as a
+template file. It may also define a `context` value which is an object. The values in this object will then
+be passed to the template engine and thus be available in the template file. It may also define an `engine` value which
+is a string which defined the engine to use for parse template file.
+available engines:
+
+1. twig (default)
+2. velocity
 
 Velocity templates let you access some of the request's parameters (such as query params and form data) and forge a
 tailored response.
@@ -1099,8 +1111,9 @@ tailored response.
           path: '/foo'
         response:
           bodyFile: './responses/foo/response.json'
-          velocity:
+          template:
             enabled: true
+            engine: velocity
 
 .. code-block::  json
     :caption: JSON
@@ -1112,12 +1125,19 @@ tailored response.
           },
           "response": {
             "bodyFile": "./responses/foo/response.json",
-            "velocity": {
-              "enabled": true
+            "template": {
+              "enabled": true,
+              "engine": "velocity"
             }
           }
         }
       }
+
+.. note::
+    Mockservr take advantage of the `twig` template library.
+    Check out their website for more information.
+
+.. _Twig: https://twig.symfony.com/
 
 .. note::
     Mockservr take advantage of the `VelocityJS`VelocityJS_ javascript library, which does not implement all Velocity features.
