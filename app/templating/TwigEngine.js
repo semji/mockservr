@@ -14,8 +14,6 @@ module.exports = class TwigEngine extends BaseEngine {
   }
 
   render({bodyFilePath, body, endpoint, request, context }) {
-
-    console.log(path.dirname(bodyFilePath));
     const template = Twig.twig({
       data: body,
       namespaces: { 'template-root-dir': path.dirname(bodyFilePath) }

@@ -5,6 +5,8 @@ COPY ./app /usr/src/app
 RUN apk add --no-cache --virtual .gyp \
         python \
         make \
+        php7 \
+        php7-json \
         g++
 
 RUN cd /usr/src/app && \

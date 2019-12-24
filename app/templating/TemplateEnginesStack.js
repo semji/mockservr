@@ -1,5 +1,6 @@
 const VelocityEngine = require('./VelocityEngine');
 const TwigEngine = require('./TwigEngine');
+const PhpEngine = require('./PhpEngine');
 
 const defaultEngine = 'twig';
 
@@ -8,6 +9,7 @@ module.exports = class TemplateEnginesStack {
     this.engines = [
       new VelocityEngine(),
       new TwigEngine(),
+      new PhpEngine(),
     ];
   }
 
